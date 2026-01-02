@@ -3,4 +3,6 @@ body {
     color: #fff;
     font-family: "JetBrains Mono", monospace;
     padding: 20px 50px;
+    display: flex;
+    /* overflow: hidden; */
 }
