@@ -1,0 +1,11 @@
+{
+    "name": "samat-chat",
+    "version": "1.0.0",
+    "description": "chat",
+    "main": "script/main.js",
+    "repository": "https://github.com/CreeperG16/samat-chat.git",
+    "author": "Tamás Papp <pappt1216@gmail.com>",
+    "devDependencies": {
+        "@supabase/supabase-js": "^2.89.0"
+    }
+}

@@ -6,10 +6,18 @@
     <title>samat chat</title>
     <link rel="stylesheet" href="./style/global.css">
     <link rel="stylesheet" href="./style/style.css">
+    <script type="importmap">
+        {
+            "imports": { "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js" }
+        }
+    </script>
 </head>
 <body>
     <div id="content">
-        <div id="top-panel" class="panel"></div>
+        <div id="top-panel" class="panel">
+            <div id="user-info"></div>
+            <div id="chat-info"></div>
+        </div>
         <div id="bottom-panel" data-abc>
             <div id="side-panel" class="panel"></div>
             <div id="main-panel" class="panel">
@@ -25,9 +33,13 @@
     <div id="login-modal" data-show="false">
         <img src="./images/user.svg" alt="User avatar">
         <h1>Log into samat-chat</h1>
+        <p id="login-message"></p>
         <input type="text" name="username" id="username-input" placeholder="Username">
         <input type="password" name="password" id="password-input" placeholder="Password">
-        <button id="login-button">log in</button>
+        <div id="button-container">
+            <button id="login-button">log in</button>
+            <button id="signup-button">sign up</button>
+        </div>
     </div>
 
     <script type="module" src="./script/main.js"></script>
