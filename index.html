@@ -8,8 +8,6 @@
     <link rel="stylesheet" href="./style/style.css">
 </head>
 <body>
-    <!-- <h1>hello</h1> -->
-
     <div id="content">
         <div id="top-panel" class="panel"></div>
         <div id="bottom-panel" data-abc>
@@ -22,6 +20,14 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <div id="login-modal" data-show="false">
+        <img src="./images/user.svg" alt="User avatar">
+        <h1>Log into samat-chat</h1>
+        <input type="text" name="username" id="username-input" placeholder="Username">
+        <input type="password" name="password" id="password-input" placeholder="Password">
+        <button id="login-button">log in</button>
     </div>
 
     <script type="module" src="./script/main.js"></script>
