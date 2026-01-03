@@ -39,11 +39,11 @@
     border: none;
     width: 20em;
     height: 2em;
-    border-radius: .5em;
+    border-radius: 0.5em;
     margin-top: 1em;
     outline: 0 solid transparent;
     color: #fff;
-    padding: .5em 1em;
+    padding: 0.5em 1em;
     font-family: "JetBrains Mono", monospace;
     transition: 150ms background-color;
 }
@@ -62,7 +62,7 @@
     border: none;
     outline: 0 solid transparent;
     margin-top: 1em;
-    border-radius: .5em;
+    border-radius: 0.5em;
     font-family: "JetBrains Mono", monospace;
     font-weight: 900;
     transition: 50ms background-color, 10ms transform;
@@ -73,7 +73,7 @@
 }
 
 #login-modal button:active {
-    transform: scale(.95);
+    transform: scale(0.95);
 }
 
 #login-modal button:disabled {
@@ -107,7 +107,15 @@
     margin: 1.5% 1.5% 0 1.5%;
     width: 97%;
     height: 5%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
     /* background-color: red; */
+}
+
+/* hide mobile menu button by default */
+#top-panel #menu-btn {
+    display: none;
 }
 
 #bottom-panel {
@@ -122,6 +130,7 @@
 
 #side-panel {
     width: 20%;
+    overflow: hidden;
     /* background-color: purple; */
 }
 
@@ -140,6 +149,64 @@
     /* background-color: aqua; */
 }
 
+/* USER INFO */
+#user-info {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: auto;
+    height: 100%;
+    width: 21.5%; /* TODO: ?????????? */
+    border-right: solid .2em #4e5c74;
+    /* background-color: green; */
+}
+
+#user-info img {
+    width: 2em;
+    border-radius: 0.5em;
+    margin: 1em;
+}
+
+#user-info h1 {
+    font-size: larger;
+}
+
+#chat-info {
+    width: 100%;
+    font-size: larger;
+    font-weight: 600;
+    margin-left: 1.5em;
+}
+
+/* CHAT LIST IN SIDE PANEL */
+#side-panel div {
+    /* width: 100%; */
+    height: 1em;
+    /* background-color: blueviolet; */
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 0.75em;
+    font-size: larger;
+    font-weight: 900;
+    user-select: none;
+    transition: 100ms background-color;
+}
+
+#side-panel div[data-selected] {
+    background-color: #4e5c74;
+}
+
+#side-panel div:hover {
+    background-color: #4e5c94;
+}
+
+#side-panel div #public-icon {
+    margin-left: 0.5em;
+    font-size: small;
+    color: #ccc;
+}
+
 /* CHAT BOX */
 #chat-box {
     height: 5%;
@@ -153,13 +220,13 @@
 #chat-field {
     width: 100%;
     outline: 0 solid transparent;
-    margin: 0 .5em;
+    margin: 0 0.5em;
 }
 
 #chat-placeholder {
     display: none;
     position: absolute;
-    margin: 0 .5em;
+    margin: 0 0.5em;
     color: #888;
     user-select: none;
     pointer-events: none;
@@ -195,24 +262,58 @@
     }
 
     #side-panel {
+        display: flex;
         width: 100%;
+        flex-direction: column;
     }
 
-    #bottom-panel[data-abc] {
-        #main-panel {
-            display: flex;
+    #top-panel #menu-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.5em;
+        height: 2em;
+        color: #fff;
+        font-size: x-large;
+    }
+
+    #top-panel #user-info {
+        border-right: none;
+    }
+
+    #top-panel #chat-info {
+        margin-left: 0;
+    }
+
+    #content:not([data-showmenu]) {
+        #top-panel {
+            flex-direction: row-reverse;
+            #user-info {
+                display: none;
+            }
+            #menu-btn::before {
+                content: "☰";
+            }
         }
-        #side-panel {
-            display: none;
+
+        #bottom-panel {
+            #side-panel {
+                display: none;
+            }
         }
     }
 
-    #bottom-panel:not([data-abc]) {
-        #main-panel {
-            display: none;
+    #content[data-showmenu] {
+        #top-panel {
+            #menu-btn {
+                display: none;
+            }
         }
-        #side-panel {
-            display: flex;
+
+        #bottom-panel {
+            #main-panel {
+                display: none;
+            }
         }
     }
 }
