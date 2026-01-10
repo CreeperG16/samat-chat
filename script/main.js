@@ -3,10 +3,6 @@ import { initAndShowLogin } from "./login-logic.js";
 import { supabase } from "./supabase.js";
 import { showError } from "./misc.js";
 
-const chatMap = new Map();
-// TODO: BETTER MESSAGE CACHE SYSTEM??????
-const messageCache = new Map();
-
 /** @typedef {{ id: string; username: string; profile_image: string | null; created_at: string }} UserProfile */
 /** @typedef {{ id: string; chat_id: string; author: UserProfile; content: string; created_at: string; }} Message */
 /** @typedef {{ id: string; name: string; private: boolean; members: string[]; viewers: string[]; created_at: string }} Chat */
@@ -44,14 +40,14 @@ const chatPanel = document.querySelector("#chat-panel");
 /** @type {HTMLTemplateElement} */
 const messageTemplate = document.querySelector("#message");
 
-function insertMessageDivider(content) {
+function renderMessageDivider(content) {
     const div = document.createElement("div");
     div.classList.add("message-divider");
     div.innerHTML = content;
     chatPanel.prepend(div);
 }
 
-function insertMessageIntoUi(message) {
+function renderMessage(message) {
     const clone = document.importNode(messageTemplate.content, true);
 
     const author = clone.querySelector(".message-author");
@@ -73,95 +69,11 @@ function insertMessageIntoUi(message) {
     chatPanel.prepend(clone);
 }
 
-async function handleMessage(event, action) {
-    const message = event.payload.message;
-    if (action === "create") {
-        insertMessageIntoUi(message);
-        messageCache.set(message.id, message);
-    }
-
-    if (action === "delete") {
-        messageCache.delete(message.id);
-        const element = document.querySelector(`.message[data-messageid="${message.id}"]`);
-        element.remove();
-    }
-}
-
-/** @type {import("@supabase/supabase-js").RealtimeChannel | null} */
-let broadcastChannel = null;
-async function updateSelectedChat(chatId) {
-    const content = document.querySelector("#content");
-
-    const chat = channelCache.get(chatId);
-
-    if (broadcastChannel) {
-        await broadcastChannel.unsubscribe();
-        broadcastChannel = null;
-    }
-
-    const chatInfo = document.querySelector("#chat-info");
-    if (chat) {
-        chatInfo.innerHTML = "#" + chat.details.name;
-        delete content.dataset.showmenu;
-
-        broadcastChannel = supabase.channel(`chat:${chatId}`, { config: { private: false } });
-        broadcastChannel
-            .on("broadcast", { event: "message-create" }, (payload) => handleMessage(payload, "create"))
-            .on("broadcast", { event: "message-delete" }, (payload) => handleMessage(payload, "delete"))
-            .subscribe();
-        // console.log("aaaa", broadcastChannel);
-    } else {
-        chatInfo.innerHTML = "";
-        content.dataset.showmenu = "true";
-    }
-
-    chatPanel.innerHTML = "";
-    chatPanel.dataset.chat_id = chatId;
-    if (!chat) return;
-
-    // TODO: proper caching?
-    const messages = messageCache.get(chatId) ?? [];
-    if (messages.length === 0) {
-        const { data, error } = await supabase
-            .from("messages")
-            .select("*, author:profiles(*)")
-            .eq("chat_id", chatId)
-            .order("created_at", { ascending: true })
-            .limit(25);
-        if (error) {
-            console.error("Error in updateSelectedChat() / select from messages", error);
-            return;
-        }
-
-        messages.push(...data);
-        messageCache.set(chatId, messages);
-    }
-
-    /** @type {Date | null} */
-    let prevTime = null;
-    for (const message of messages) {
-        const msgTime = new Date(message.created_at);
-        if (!prevTime || prevTime.getDate() !== msgTime.getDate()) insertMessageDivider(msgTime.toDateString());
-        prevTime = msgTime;
-        insertMessageIntoUi(message);
-    }
-
-    // update selected chat
-    const { error: stateUpdateErr } = await supabase
-        .from("user_state")
-        .update({ selected_chat: chatId, last_updated: new Date().toISOString() })
-        .neq("user_id", "00000000-0000-0000-0000-000000000000");
-
-    if (stateUpdateErr) {
-        console.error("Error in updateSelectedChat() / update selected_chat", error);
-    }
-}
-
 async function sendMessage(content, chat_id) {
     const { data, error } = await supabase.from("messages").insert({ content, chat_id });
 
     if (error) {
-        console.error("Error in sendMessage() / insert into messages", error);
+        console.error("Error in sendMessage() / 'insert into messages'", error);
         return { success: false, data: error };
     }
 
@@ -188,8 +100,8 @@ async function fetchChats() {
 
         const socket = supabase
             .channel(`chat:${chat.id}`)
-            .on("broadcast", { event: "message-create" }, (m) => handleMessageNew(m, "create"))
-            .on("broadcast", { event: "message-delete" }, (m) => handleMessageNew(m, "delete"))
+            .on("broadcast", { event: "message-create" }, (m) => handleMessage(m, "create"))
+            .on("broadcast", { event: "message-delete" }, (m) => handleMessage(m, "delete"))
             .subscribe();
 
         chatSockets.set(chat.id, socket);
@@ -222,7 +134,7 @@ async function fetchMessages(chatId) {
     updateCacheMessages(cachedChannel);
 }
 
-function handleMessageNew(event, action) {
+function handleMessage(event, action) {
     const message = event.payload.message;
     const cacheChannel = channelCache.get(message.chat_id);
     if (!cacheChannel) return;
@@ -272,10 +184,10 @@ function renderMessages(chatId) {
     for (const message of cachedChannel.messages) {
         const currentMessageTime = new Date(message.created_at);
         if (!previousMessageTime || previousMessageTime.getDate() !== currentMessageTime.getDate())
-            insertMessageDivider(currentMessageTime.toDateString());
+            renderMessageDivider(currentMessageTime.toDateString());
 
         previousMessageTime = currentMessageTime;
-        insertMessageIntoUi(message);
+        renderMessage(message);
     }
 }
 
