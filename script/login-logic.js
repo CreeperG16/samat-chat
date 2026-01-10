@@ -83,19 +83,19 @@ async function handleNotLoggedIn(startSession) {
             return;
         }
 
-        const { data, error } = await supabase.from("profiles").select().eq("username", username).limit(1);
+        const { data, error } = await supabase.from("profiles").select().eq("username", username).limit(1).single();
 
         if (error) {
             console.error("error in handleNotLoggedIn() / usernameInputFocusCB()", error);
             return;
         }
 
-        if (data[0]) {
+        if (data) {
             loginBtn.style.display = "inline";
             signupBtn.style.display = "none";
 
             userExists = true;
-            profileImage.src = data[0].profile_image ?? GENERIC_USER;
+            profileImage.src = data.profile_image ?? GENERIC_USER;
         } else {
             loginBtn.style.display = "none";
             signupBtn.style.display = "inline";

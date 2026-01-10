@@ -20,9 +20,27 @@
             <div id="menu-btn"></div> <!-- for mobile screens -->
         </div>
         <div id="bottom-panel">
-            <div id="side-panel" class="panel"></div>
+            <div id="side-panel" class="panel">
+                <template id="chat-tab">
+                    <div ></div>
+                </template>
+            </div>
             <div id="main-panel" class="panel">
                 <div id="chat-panel"></div>
+                <template id="message">
+                    <div data-messageid="" class="message">
+                        <div class="message-pfp">
+                            <img src="images/user.svg" alt="user">
+                        </div>
+                        <div class="message-body">
+                            <div class="message-info">
+                                <div class="message-author"></div>
+                                <div class="message-timestamp">12:34</div>
+                            </div>
+                            <div class="message-content"></div>
+                        </div>
+                    </div>
+                </template>
                 <div id="chat-box">
                     <span id="chat-field" contenteditable="true"></span>
                     <span id="chat-placeholder">Type a message...</span>
@@ -31,7 +49,8 @@
         </div>
     </div>
 
-    <div id="login-modal" data-show="false">
+    <div id="login-modal">
+    <!-- <div id="login-modal" data-show="true"> -->
         <img src="./images/user.svg" alt="User avatar">
         <h1>Log into samat-chat</h1>
         <p id="login-message"></p>
