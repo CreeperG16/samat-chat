@@ -3,37 +3,58 @@ import { initAndShowLogin } from "./login-logic.js";
 import { supabase } from "./supabase.js";
 
 const chatMap = new Map();
+// TODO: BETTER MESSAGE CACHE SYSTEM??????
 const messageCache = new Map();
+
+let currentUser = null;
 
 const chatPanel = document.querySelector("#chat-panel");
 /** @type {HTMLTemplateElement} */
 const messageTemplate = document.querySelector("#message");
 
 
+function insertMessageDivider(content) {
+    const div = document.createElement("div");
+    div.classList.add("message-divider");
+    div.innerHTML = content;
+    chatPanel.prepend(div);
+}
+
 function insertMessageIntoUi(message) {
     const clone = document.importNode(messageTemplate.content, true);
 
     const author = clone.querySelector(".message-author");
     const pfp = clone.querySelector(".message-pfp img");
+    const timestamp = clone.querySelector(".message-timestamp");
     const content = clone.querySelector(".message-content");
 
-    // content.innerHTML = JSON.stringify(message);
     author.innerHTML = message.author.username;
     if (message.author.profile_image) pfp.src = message.author.profile_image;
     content.innerHTML = message.content;
+    timestamp.innerHTML = new Date(message.created_at).toLocaleTimeString();
 
-    clone.querySelector(".message").dataset.messageid = message.id;
+    const msg = clone.querySelector(".message")
+
+    if (currentUser && currentUser.id === message.author.id)
+        msg.classList.add("own-message");
+
+    msg.dataset.messageid = message.id;
 
     chatPanel.prepend(clone);
 }
 
 
 async function handleMessage(event, action) {
+    const message = event.payload.message;
     if (action === "create") {
-        const message = event.payload.message;
-        // console.log(event, message);
-
         insertMessageIntoUi(message);
+        messageCache.set(message.id, message);
+    }
+
+    if (action === "delete") {
+        messageCache.delete(message.id);
+        const element = document.querySelector(`.message[data-messageid="${message.id}"]`);
+        element.remove();
     }
 }
 
@@ -76,7 +97,7 @@ async function updateSelectedChat(chatId) {
             .from("messages")
             .select("*, author:profiles(*)")
             .eq("chat_id", chatId)
-            // .order("created_at")
+            .order("created_at", { ascending: true })
             .limit(25);
         if (error) {
             console.error("Error in updateSelectedChat() / select from messages", error);
@@ -87,7 +108,16 @@ async function updateSelectedChat(chatId) {
         messageCache.set(chatId, messages);
     }
 
-    for (const message of messages) insertMessageIntoUi(message);
+    /** @type {Date} */
+    let prevTime = null;
+    for (const message of messages) {
+        const msgTime = new Date(message.created_at);
+        if (!prevTime || prevTime.getDate() !== msgTime.getDate())
+            insertMessageDivider(msgTime.toDateString());
+        prevTime = msgTime;
+        insertMessageIntoUi(message);
+
+    }
 
     // update selected chat
     const { error: stateUpdateErr } = await supabase
@@ -193,6 +223,8 @@ async function chatSession(session) {
         return;
     }
 
+    currentUser = user;
+
     const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select()
@@ -208,12 +240,6 @@ async function chatSession(session) {
     }
 
     await populateUi(user, profile);
-
-    // const broadcastChannel = supabase.channel("message-create")
-
-    // :D
-    // const { data, error } = await supabase.from("chats").select();
-    // console.log(data)
 }
 
 const { isLoggedIn, session } = await initAndShowLogin(chatSession);

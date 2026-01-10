@@ -261,8 +261,8 @@
     .message-body {
         display: flex;
         flex-direction: column;
-        justify-content: center;
-        margin-left: .5em;
+        align-items: start;
+        margin: 0 .5em;
 
         .message-info {
             display: flex;
@@ -281,6 +281,27 @@
             }
         }
     }
+}
+
+.message.own-message {
+    flex-direction: row-reverse;
+    justify-content: right;
+
+    .message-body {
+        align-items: end;
+
+        .message-info {
+            flex-direction: row-reverse;
+        }
+    }
+}
+
+.message-divider {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    color: #aaa;
+    margin: .5em 0;
 }
 
 /* MOBILE */
