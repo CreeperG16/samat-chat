@@ -1,0 +1,85 @@
+/* LOGIN MODAL */
+#login-modal {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    background-color: #21212c;
+ 
+    img {
+        width: 6em;
+        border-radius: 1.5em;
+    }
+
+    input {
+        background-color: #2f3948;
+        border: none;
+        width: 20em;
+        height: 2em;
+        border-radius: 0.5em;
+        margin-top: 1em;
+        outline: 0 solid transparent;
+        color: #fff;
+        padding: 0.5em 1em;
+        font-family: "JetBrains Mono", monospace;
+        transition: 150ms background-color;
+    }
+
+    input:disabled {
+        background-color: #4e5c74;
+        color: #ddd;
+        pointer-events: none;
+        cursor: not-allowed;
+    }
+
+    button {
+        display: none;
+        width: 8em;
+        height: 2em;
+        font-size: larger;
+        background-color: #2f3948;
+        color: #fff;
+        border: none;
+        outline: 0 solid transparent;
+        margin-top: 1em;
+        border-radius: 0.5em;
+        font-family: "JetBrains Mono", monospace;
+        font-weight: 900;
+        transition: 50ms background-color, 10ms transform;
+    }
+
+    button:hover {
+        background-color: #118321;
+    }
+
+    button:active {
+        transform: scale(0.95);
+    }
+
+    button:disabled {
+        background-color: #4e5c74;
+        color: #ddd;
+        pointer-events: none;
+        cursor: not-allowed;
+    }
+}
+
+#login-modal[data-show] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+#password-input.invalid {
+    background-color: #ba2121;
+}
+
+#login-message {
+    display: none;
+    color: #ff2a2a;
+    margin: 0;
+    font-weight: 400;
+}

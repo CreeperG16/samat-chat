@@ -1,100 +1,13 @@
+@import url("login-modal.css");
+
 #content {
     position: absolute;
-    top: 0;
-    left: 0;
+    inset: 0;
     width: 100%;
     height: 100%;
-    /* background-color: blue; */
     display: flex;
     flex-direction: column;
     gap: 2.5%;
-}
-
-/* LOGIN MODAL */
-#login-modal {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: none;
-    background-color: #21212c;
-    /* gap: 1em; */
-}
-
-#login-modal[data-show] {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-}
-
-#login-modal img {
-    width: 6em;
-    border-radius: 1.5em;
-}
-
-#login-modal input {
-    background-color: #2f3948;
-    border: none;
-    width: 20em;
-    height: 2em;
-    border-radius: 0.5em;
-    margin-top: 1em;
-    outline: 0 solid transparent;
-    color: #fff;
-    padding: 0.5em 1em;
-    font-family: "JetBrains Mono", monospace;
-    transition: 150ms background-color;
-}
-
-#password-input.invalid {
-    background-color: #ba2121;
-}
-
-#login-modal button {
-    display: none;
-    width: 8em;
-    height: 2em;
-    font-size: larger;
-    background-color: #2f3948;
-    color: #fff;
-    border: none;
-    outline: 0 solid transparent;
-    margin-top: 1em;
-    border-radius: 0.5em;
-    font-family: "JetBrains Mono", monospace;
-    font-weight: 900;
-    transition: 50ms background-color, 10ms transform;
-}
-
-#login-modal button:hover {
-    background-color: #118321;
-}
-
-#login-modal button:active {
-    transform: scale(0.95);
-}
-
-#login-modal button:disabled {
-    background-color: #4e5c74;
-    color: #ddd;
-    pointer-events: none;
-    cursor: not-allowed;
-}
-
-#login-modal input:disabled {
-    background-color: #4e5c74;
-    color: #ddd;
-    pointer-events: none;
-    cursor: not-allowed;
-}
-
-#login-message {
-    display: none;
-    color: #ff2a2a;
-    margin: 0;
-    font-weight: 400;
 }
 
 /* PANELS */
@@ -110,12 +23,11 @@
     display: flex;
     flex-direction: row;
     align-items: center;
-    /* background-color: red; */
-}
 
-/* hide mobile menu button by default */
-#top-panel #menu-btn {
-    display: none;
+    /* hide mobile menu button by default */
+    #menu-btn {
+        display: none;
+    }
 }
 
 #bottom-panel {
@@ -123,7 +35,6 @@
     flex: 1 1 auto;
     min-height: 0;
     width: 97%;
-    /* background-color: green; */
     display: flex;
     flex-direction: row;
     gap: 1.5%;
@@ -132,14 +43,12 @@
 #side-panel {
     width: 20%;
     overflow: hidden;
-    /* background-color: purple; */
 }
 
 #main-panel {
     display: flex;
     flex-direction: column;
     width: 100%;
-    /* background-color: orange; */
 }
 
 #chat-panel {
@@ -148,7 +57,6 @@
     width: 100%;
     height: 100%;
     overflow-y: scroll;
-    /* background-color: aqua; */
 }
 
 /* USER INFO */
@@ -158,19 +66,20 @@
     align-items: center;
     width: auto;
     height: 100%;
-    width: 21.5%; /* TODO: ?????????? */
-    border-right: solid .2em #4e5c74;
-    /* background-color: green; */
-}
 
-#user-info img {
-    width: 2em;
-    border-radius: 0.5em;
-    margin: 1em;
-}
+    /* TODO: ?????????? */
+    width: 21.5%;
+    border-right: solid 0.2em #4e5c74;
 
-#user-info h1 {
-    font-size: larger;
+    img {
+        width: 2em;
+        border-radius: 0.5em;
+        margin: 1em;
+    }
+
+    h1 {
+        font-size: larger;
+    }
 }
 
 #chat-info {
@@ -181,32 +90,34 @@
 }
 
 /* CHAT LIST IN SIDE PANEL */
-#side-panel div {
-    /* width: 100%; */
-    height: 1em;
-    /* background-color: blueviolet; */
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    padding: 0.75em;
-    font-size: larger;
-    font-weight: 900;
-    user-select: none;
-    transition: 100ms background-color;
-}
+#side-panel {
+    div {
+        /* width: 100%; */
+        height: 1em;
+        /* background-color: blueviolet; */
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        padding: 0.75em;
+        font-size: larger;
+        font-weight: 900;
+        user-select: none;
+        transition: 100ms background-color;
 
-#side-panel div[data-selected] {
-    background-color: #4e5c74;
-}
+        #public-icon {
+            margin-left: 0.5em;
+            font-size: small;
+            color: #ccc;
+        }
+    }
 
-#side-panel div:hover {
-    background-color: #4e5c94;
-}
+    div.selected-chat {
+        background-color: #4e5c74;
+    }
 
-#side-panel div #public-icon {
-    margin-left: 0.5em;
-    font-size: small;
-    color: #ccc;
+    div:hover {
+        background-color: #4e5c94;
+    }
 }
 
 /* CHAT BOX */
@@ -216,7 +127,6 @@
     margin: 0 1.5%;
     display: flex;
     align-items: center;
-    /* background-color: teal; */
 }
 
 #chat-field {
@@ -247,7 +157,7 @@
 
 /* MESSAGES */
 .message {
-    margin: .4em 1em;
+    margin: 0.4em 1em;
     display: flex;
     flex-direction: row;
     font-size: larger;
@@ -255,20 +165,20 @@
     .message-pfp img {
         width: 2.5em;
         height: 2.5em;
-        border-radius: .625em;
+        border-radius: 0.625em;
     }
 
     .message-body {
         display: flex;
         flex-direction: column;
         align-items: start;
-        margin: 0 .5em;
+        margin: 0 0.5em;
 
         .message-info {
             display: flex;
             flex-direction: row;
             align-items: center;
-            gap: .5em;
+            gap: 0.5em;
 
             .message-author {
                 font-weight: 900;
@@ -277,7 +187,7 @@
             .message-timestamp {
                 font-weight: 100;
                 color: #aaa;
-                font-size: .8em;
+                font-size: 0.8em;
             }
         }
     }
@@ -301,7 +211,7 @@
     display: flex;
     justify-content: center;
     color: #aaa;
-    margin: .5em 0;
+    margin: 0.5em 0;
 }
 
 /* MOBILE */
@@ -312,6 +222,24 @@
         width: 94%;
         height: 5%;
         /* background-color: red; */
+
+        #menu-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.5em;
+            height: 2em;
+            color: #fff;
+            font-size: x-large;
+        }
+
+        #user-info {
+            border-right: none;
+        }
+
+        #chat-info {
+            margin-left: 0;
+        }
     }
 
     #bottom-panel {
@@ -329,24 +257,6 @@
         display: flex;
         width: 100%;
         flex-direction: column;
-    }
-
-    #top-panel #menu-btn {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 2.5em;
-        height: 2em;
-        color: #fff;
-        font-size: x-large;
-    }
-
-    #top-panel #user-info {
-        border-right: none;
-    }
-
-    #top-panel #chat-info {
-        margin-left: 0;
     }
 
     #content:not([data-showmenu]) {

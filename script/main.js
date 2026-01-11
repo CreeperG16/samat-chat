@@ -2,26 +2,8 @@ import { GENERIC_USER } from "./constants.js";
 import { initAndShowLogin } from "./login-logic.js";
 import { supabase } from "./supabase.js";
 import { showError } from "./misc.js";
-
-/** @typedef {{ id: string; username: string; profile_image: string | null; created_at: string }} UserProfile */
-/** @typedef {{ id: string; chat_id: string; author: UserProfile; content: string; created_at: string; }} Message */
-/** @typedef {{ id: string; name: string; private: boolean; members: string[]; viewers: string[]; created_at: string }} Chat */
-/** @typedef {{ id: string; details: Chat; messages: Message[]; latestMessageAt: Date | null; oldestMessageAt: Date | null; lastFetchedAt: Date }} CacheChannel */
-
-/** @type {Map<string, CacheChannel>} */
-const channelCache = new Map();
-
-/** @param {CacheChannel} cacheChannel */
-function updateCacheMessages(cacheChannel) {
-    cacheChannel.messages.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
-    if (cacheChannel.messages.length === 0) return;
-
-    cacheChannel.latestMessageAt = new Date(cacheChannel.messages.at(-1).created_at);
-    cacheChannel.oldestMessageAt = new Date(cacheChannel.messages.at(0).created_at);
-}
-
-/** @type {Map<string, import("@supabase/supabase-js").RealtimeChannel>} */
-const chatSockets = new Map();
+import { renderChatSelector, renderMessages } from "./render.js";
+import { channelCache, chatSockets, setCurrentUser, updateCacheMessages } from "./session.js";
 
 /** @param {boolean} open */
 function setMenuState(open) {
@@ -34,46 +16,11 @@ function setMenuState(open) {
     }
 }
 
-let currentUser = null;
-
-const chatPanel = document.querySelector("#chat-panel");
-/** @type {HTMLTemplateElement} */
-const messageTemplate = document.querySelector("#message");
-
-function renderMessageDivider(content) {
-    const div = document.createElement("div");
-    div.classList.add("message-divider");
-    div.innerHTML = content;
-    chatPanel.prepend(div);
-}
-
-function renderMessage(message) {
-    const clone = document.importNode(messageTemplate.content, true);
-
-    const author = clone.querySelector(".message-author");
-    const pfp = clone.querySelector(".message-pfp img");
-    const timestamp = clone.querySelector(".message-timestamp");
-    const content = clone.querySelector(".message-content");
-
-    author.innerHTML = message.author.username;
-    if (message.author.profile_image) pfp.src = message.author.profile_image;
-    content.innerHTML = message.content;
-    timestamp.innerHTML = new Date(message.created_at).toLocaleTimeString();
-
-    const msg = clone.querySelector(".message");
-
-    if (currentUser && currentUser.id === message.author.id) msg.classList.add("own-message");
-
-    msg.dataset.messageid = message.id;
-
-    chatPanel.prepend(clone);
-}
-
 async function sendMessage(content, chat_id) {
     const { data, error } = await supabase.from("messages").insert({ content, chat_id });
 
     if (error) {
-        console.error("Error in sendMessage() / 'insert into messages'", error);
+        showError("sendMessage() / 'insert into messages'", error);
         return { success: false, data: error };
     }
 
@@ -89,7 +36,7 @@ async function fetchChats() {
     }
 
     for (const chat of chats) {
-        channelCache.set(chat.id, {
+        channelCache().set(chat.id, {
             id: chat.id,
             details: chat,
             lastFetchedAt: new Date(),
@@ -104,14 +51,14 @@ async function fetchChats() {
             .on("broadcast", { event: "message-delete" }, (m) => handleMessage(m, "delete"))
             .subscribe();
 
-        chatSockets.set(chat.id, socket);
+        chatSockets().set(chat.id, socket);
     }
 }
 
 async function fetchMessages(chatId) {
-    const cachedChannel = channelCache.get(chatId);
+    const cachedChannel = channelCache().get(chatId);
     if (!chatId) {
-        showError("fetchMessages(chatId) / channelCache.get(chatId)", "Channel not cached???");
+        showError("fetchMessages(chatId) / channelCache().get(chatId)", "Channel not cached???");
         return;
     }
 
@@ -136,7 +83,7 @@ async function fetchMessages(chatId) {
 
 function handleMessage(event, action) {
     const message = event.payload.message;
-    const cacheChannel = channelCache.get(message.chat_id);
+    const cacheChannel = channelCache().get(message.chat_id);
     if (!cacheChannel) return;
 
     if (action === "create") {
@@ -155,51 +102,18 @@ function handleMessage(event, action) {
     }
 }
 
-function renderChatSelector(chat) {
-    const div = document.createElement("div");
-    div.innerHTML = "#" + chat.name;
-    div.dataset.id = chat.id;
-
-    div.addEventListener("click", () => selectChat(chat.id));
-
-    if (!chat.private) {
-        const publicIcon = document.createElement("p");
-        publicIcon.innerHTML = " 🌏︎";
-        publicIcon.id = "public-icon";
-        div.appendChild(publicIcon);
-    }
-
-    return div;
-}
-
-function renderMessages(chatId) {
-    chatPanel.innerHTML = "";
-
-    const cachedChannel = channelCache.get(chatId);
-    if (!cachedChannel) return;
-
-    /** @type {Date | null} */
-    let previousMessageTime = null;
-
-    for (const message of cachedChannel.messages) {
-        const currentMessageTime = new Date(message.created_at);
-        if (!previousMessageTime || previousMessageTime.getDate() !== currentMessageTime.getDate())
-            renderMessageDivider(currentMessageTime.toDateString());
-
-        previousMessageTime = currentMessageTime;
-        renderMessage(message);
-    }
-}
-
 async function selectChat(chatId) {
-    const cachedChannel = channelCache.get(chatId);
+    const cachedChannel = channelCache().get(chatId);
     setMenuState(!!cachedChannel);
+
+    document.querySelectorAll(".selected-chat").forEach((s) => s.classList.remove("selected-chat"));
 
     const chatInfo = document.querySelector("#chat-info");
     if (!cachedChannel) {
         chatInfo.innerHTML = "";
     } else {
         chatInfo.innerHTML = "#" + cachedChannel.details.name;
+        document.querySelector(`div[data-chatid="${chatId}"]`).classList.add("selected-chat");
     }
 
     // fetch messages if necessary?
@@ -211,8 +125,8 @@ async function selectChat(chatId) {
     renderMessages(chatId);
 }
 
-/** @param {import("@supabase/supabase-js").User} user */
-async function populateUi(user, profile) {
+/** @param {UserProfile} profile */
+async function populateUi(profile) {
     // mobile menu button functionality
     const menuBtn = document.querySelector("#menu-btn");
     menuBtn.addEventListener("click", () => selectChat(null));
@@ -232,36 +146,19 @@ async function populateUi(user, profile) {
     // User state
     const { data: userState, error: stateError } = await supabase.from("user_state").select().limit(1).single();
 
+    if (stateError) {
+        showError("populateUi() / 'select * from user_state'", stateError);
+    }
+
     // chats (channels)
     const sidePanel = document.querySelector("#side-panel");
 
     await fetchChats();
-    for (const chat of channelCache.values()) {
+    for (const chat of channelCache().values()) {
         const selector = renderChatSelector(chat.details);
         sidePanel.appendChild(selector);
+        selector.addEventListener("click", () => selectChat(chat.id));
     }
-
-    // const { data: chats, error: fetchChatsError } = await supabase.from("chats").select();
-    // if (fetchChatsError) {
-    //     console.error("Error in populateUi() / select from chats", fetchChatsError);
-    // } else {
-    //     for (const chat of chats) {
-    //         chatMap.set(chat.id, chat);
-
-    //         const div = document.createElement("div");
-    //         div.innerHTML = "#" + chat.name;
-    //         div.dataset.id = chat.id;
-    //         sidePanel.appendChild(div);
-
-    //         div.addEventListener("click", () => updateSelectedChat(chat.id));
-
-    //         if (chat.private) continue;
-    //         const publicIcon = document.createElement("p");
-    //         publicIcon.innerHTML = " 🌏︎";
-    //         publicIcon.id = "public-icon";
-    //         div.appendChild(publicIcon);
-    //     }
-    // }
 
     /** @type {HTMLDivElement} */
     const chatField = document.querySelector("#chat-field");
@@ -273,15 +170,15 @@ async function populateUi(user, profile) {
             ev.preventDefault();
             ev.target.innerHTML = "";
 
-            const { chat_id } = document.querySelector("#chat-panel").dataset;
+            const { chatid } = document.querySelector(".selected-chat").dataset;
 
-            sendMessage(message, chat_id);
+            sendMessage(message, chatid);
         }
     });
 
     // Update selected chat
     if (!userState.selected_chat) {
-        const selected = channelCache.values()[0].id;
+        const selected = channelCache().values()[0].id;
         selectChat(selected);
     } else {
         selectChat(userState.selected_chat);
@@ -299,7 +196,7 @@ async function chatSession(session) {
         return;
     }
 
-    currentUser = user;
+    setCurrentUser(user);
 
     const { data: profile, error: profileError } = await supabase
         .from("profiles")
@@ -315,7 +212,7 @@ async function chatSession(session) {
         return;
     }
 
-    await populateUi(user, profile);
+    await populateUi(profile);
 }
 
 const { isLoggedIn, session } = await initAndShowLogin(chatSession);
