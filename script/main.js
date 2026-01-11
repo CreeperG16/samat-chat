@@ -90,7 +90,9 @@ function handleMessage(event, action) {
     if (action === "create") {
         cacheChannel.messages.push(message);
         updateCacheMessages(cacheChannel);
-        renderMessages(cacheChannel.id);
+        
+        const { chatid } = document.querySelector(".selected-chat").dataset
+        if (chatid === message.chat_id) renderMessages(cacheChannel.id);
     }
 
     if (action === "delete") {
