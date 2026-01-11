@@ -202,6 +202,11 @@
 
         .message-info {
             flex-direction: row-reverse;
+            text-align: right;
+        }
+
+        .message-content {
+            text-align: right;
         }
     }
 }

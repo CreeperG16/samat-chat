@@ -67,7 +67,8 @@ async function fetchMessages(chatId) {
         .select("*, author:profiles(*)")
         .eq("chat_id", chatId)
         .gt("created_at", cachedChannel.latestMessageAt ?? new Date(0).toISOString())
-        .limit(25);
+        .order("created_at", { ascending: false })
+        .limit(25); // latest 25 messages (will be reordered client side too)
 
     if (error) {
         showError("fetchMessages(chatId) / 'select * from messages where ...'", error);
@@ -104,13 +105,14 @@ function handleMessage(event, action) {
 
 async function selectChat(chatId) {
     const cachedChannel = channelCache().get(chatId);
-    setMenuState(!!cachedChannel);
+    setMenuState(!cachedChannel);
 
     document.querySelectorAll(".selected-chat").forEach((s) => s.classList.remove("selected-chat"));
 
     const chatInfo = document.querySelector("#chat-info");
     if (!cachedChannel) {
         chatInfo.innerHTML = "";
+        return;
     } else {
         chatInfo.innerHTML = "#" + cachedChannel.details.name;
         document.querySelector(`div[data-chatid="${chatId}"]`).classList.add("selected-chat");
@@ -123,6 +125,15 @@ async function selectChat(chatId) {
     }
 
     renderMessages(chatId);
+
+    const { error: stateUpdateErr } = await supabase
+        .from("user_state")
+        .update({ selected_chat: chatId, last_updated: new Date().toISOString() })
+        .neq("user_id", "00000000-0000-0000-0000-000000000000");
+
+    if (stateUpdateErr) {
+        showError("selectChat() / 'update user_state'", stateUpdateErr);
+    }
 }
 
 /** @param {UserProfile} profile */
@@ -178,7 +189,7 @@ async function populateUi(profile) {
 
     // Update selected chat
     if (!userState.selected_chat) {
-        const selected = channelCache().values()[0].id;
+        const selected = [...channelCache().values()][0].id;
         selectChat(selected);
     } else {
         selectChat(userState.selected_chat);
