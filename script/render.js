@@ -20,9 +20,9 @@ export function renderMessage(message) {
     const timestamp = clone.querySelector(".message-timestamp");
     const content = clone.querySelector(".message-content");
 
-    author.innerHTML = message.author.username;
+    author.appendChild(document.createTextNode(message.author.username));
     if (message.author.profile_image) pfp.src = message.author.profile_image;
-    content.innerHTML = message.content;
+    content.appendChild(document.createTextNode(message.content));
     timestamp.innerHTML = new Date(message.created_at).toLocaleTimeString();
 
     const msg = clone.querySelector(".message");
