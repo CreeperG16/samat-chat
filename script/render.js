@@ -22,14 +22,14 @@ export function renderMessage(message) {
 
     author.appendChild(document.createTextNode(message.author.username));
     if (message.author.profile_image) pfp.src = message.author.profile_image;
+
     content.appendChild(document.createTextNode(message.content));
     timestamp.innerHTML = new Date(message.created_at).toLocaleTimeString();
 
     const msg = clone.querySelector(".message");
-
     const currentUser = getCurrentUser();
-    if (currentUser && currentUser.id === message.author.id) msg.classList.add("own-message");
 
+    if (currentUser && currentUser.id === message.author.id) msg.classList.add("own-message");
     msg.dataset.messageid = message.id;
 
     chatPanel.prepend(clone);

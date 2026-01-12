@@ -3,7 +3,7 @@ import { initAndShowLogin } from "./login-logic.js";
 import { supabase } from "./supabase.js";
 import { showError } from "./misc.js";
 import { renderChatSelector, renderMessages } from "./render.js";
-import { channelCache, chatSockets, setCurrentUser, updateCacheMessages } from "./session.js";
+import { channelCache, chatSockets, getCurrentUser, setCurrentUser, updateCacheMessages } from "./session.js";
 
 /** @param {boolean} open */
 function setMenuState(open) {
@@ -124,6 +124,16 @@ async function selectChat(chatId) {
     // TODO: logic for this
     if (cachedChannel.messages.length === 0) {
         await fetchMessages(chatId);
+    }
+
+    const chatBox = document.querySelector("#chat-box");
+    if (
+        cachedChannel.details.private &&
+        !(cachedChannel.details.members ?? []).includes(getCurrentUser().id)
+    ) {
+        chatBox.classList.add("hidden");
+    } else {
+        chatBox.classList.remove("hidden");
     }
 
     renderMessages(chatId);
