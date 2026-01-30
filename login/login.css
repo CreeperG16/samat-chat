@@ -1,0 +1,110 @@
+#content {
+    position: absolute;
+    inset: 0;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    
+    .turnstile-container {
+        /* 😭 */
+        min-width: calc(300px + 4px);
+    }
+}
+
+button {
+    border: none;
+    padding: 1em 3em;
+    background-color: #323242;
+    color: #fff;
+    border-radius: .5em;
+    font-size: medium;
+    font-family: "JetBrains Mono", monospace;
+
+    transition: background-color 100ms, transform 100ms;
+
+    &:hover {
+        background-color: #434354;
+    }
+
+    &:active {
+        transform: translate(2px, 2px);
+    }
+}
+
+input {
+    background-color: #2f3948;
+    border: none;
+    height: 2em;
+    border-radius: 0.5em;
+    outline: 0 solid transparent;
+    color: #fff;
+    padding: 0.5em 1em;
+    font-family: "JetBrains Mono", monospace;
+    transition: background-color 100ms ease;
+    text-transform: lowercase;
+
+    &:disabled {
+        background-color: #4e5c74;
+        color: #ddd;
+        pointer-events: none;
+        cursor: not-allowed;
+    }
+
+    &:invalid {
+        background-color: #ba2121;
+    }
+
+    &.loading {
+        background-color: #4e5c74;
+    }
+}
+
+form {
+    display: flex;
+    gap: 1em;
+    flex-direction: column;
+}
+
+h1 {
+    margin-bottom: 1.5em;
+
+    span {
+        position: relative;
+
+        span {
+            transition: all 100ms;
+        }
+
+        span:not(.selected) {
+            position: absolute;
+            width: max-content;
+            left: 0;
+            transform-origin: left;
+            text-decoration: underline;
+            cursor: pointer;
+            border-bottom: #fff solid 2px;
+
+            &[data-mode=login] {
+                transform: translate(0, -1em) scale(.5);
+            }
+            &[data-mode=signup] {
+                transform: translate(0, 1em) scale(.5);
+            }
+        }
+    }
+}
+
+input:is(.loading, :invalid, :placeholder-shown:not(.hidden)) ~ button[type=submit] {
+    background-color: #4e5c74;
+    color: #ddd;
+    pointer-events: none;
+    cursor: not-allowed;
+}
+
+/* input.loading ~ button[type=submit],
+input:invalid ~ button[type=submit],
+input:placeholder-shown:not(.hidden) ~ button[type=submit] {
+ 
+} */

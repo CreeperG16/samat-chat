@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <base href="/login">
+    <title>login | samat-chat</title>
+    <link rel="stylesheet" href="style/global.css">
+    <link rel="stylesheet" href="login/login.css">
+    <script type="importmap">
+        { "imports": { "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js" } }
+    </script>
+    <script type="module" src="login/login.js"></script>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+</head>
+<body>
+    <div id="content" class="mode-login">
+    <!-- <div id="login-modal" data-show="true"> -->
+        <img src="images/user.svg" alt="User avatar">
+        <div id="info">
+            <h1><span id="mode-switcher"></span> samat-chat</h1>
+            <p>click here to switch</p>
+        </div>
+        <input type="email" name="email" id="email-input" placeholder="Email" pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$">
+        <input type="password" name="password" id="password-input" placeholder="Password" pattern="^(?=.*\d)(?=.*[A-Z])(?=.*[a-z]).{6,}">
+        <input type="text" name="username" id="username-input" placeholder="Username" pattern="^[a-zA-Z_\.0-9]{4,}">
+        <div class="turnstile-wrapper">
+            <div class="cf-turnstile" data-sitekey="0x4AAAAAACQpgCzEwFTFxjqF" data-size="flexible" data-callback="turnstileCallback"></div>
+        </div>
+        <p id="login-message"></p>
+        <div id="button-container">
+            <button id="login-button">log in</button>
+            <button id="signup-button">sign up</button>
+        </div>
+    </div>
+</body>
+</html>

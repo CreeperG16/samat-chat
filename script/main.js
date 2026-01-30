@@ -1,5 +1,4 @@
 import { GENERIC_USER } from "./constants.js";
-import { initAndShowLogin } from "./login-logic.js";
 import { supabase } from "./supabase.js";
 import { showError } from "./misc.js";
 import { renderChatSelector, renderMessages } from "./render.js";
@@ -17,6 +16,8 @@ function setMenuState(open) {
 }
 
 async function sendMessage(content, chat_id) {
+    const newMessageId = crypto.randomUUID();
+
     const { data, error } = await supabase.from("messages").insert({ content, chat_id });
 
     if (error) {
@@ -238,4 +239,25 @@ async function chatSession(session) {
     await populateUi(profile);
 }
 
-const { isLoggedIn, session } = await initAndShowLogin(chatSession);
+async function main() {
+    const { data, error } = await supabase.auth.getSession();
+
+    if (error) {
+        showError("main() / getSession()", error);
+        window.location.href = "/login";
+        return;
+    }
+
+    if (!data.session) {
+        console.log("not logged in");
+        window.location.href = "/login";
+        return;
+    } else {
+        await chatSession(data.session);
+        return;
+    }
+}
+
+main();
+
+// const { isLoggedIn, session } = await initAndShowLogin(chatSession);

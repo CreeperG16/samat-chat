@@ -1,3 +1,5 @@
+@import url("../fonts/fonts.css");
+
 body {
     background-color: #21212c;
     color: #fff;
@@ -5,4 +7,8 @@ body {
     padding: 20px 50px;
     display: flex;
     overflow: hidden;
+}
+
+.hidden {
+    display: none;
 }

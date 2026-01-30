@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <base href="/login">
+    <title>login | samat chat</title>
+    <link rel="stylesheet" href="style/global.css">
+    <link rel="stylesheet" href="login/login.css">
+    <script type="importmap">
+        { "imports": { "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js" } }
+    </script>
+    <script type="module" src="login/login.js"></script>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+</head>
+<body>
+    <div id="content">
+        <h1>
+            <span class="mode-switcher">
+                <span class="mode selected" data-mode="login">Log into</span>
+                <span class="mode" data-mode="signup">Sign up for</span>
+            </span>
+            <!-- <span class="layout-placeholder">Log into</span> -->
+            <span>samat chat</span>
+        </h1>
+        <form>
+            <input type="hidden" name="mode" id="mode-selector" value="login">
+            <input type="email" name="email" id="email" placeholder="Email" pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$">
+            <input type="text" name="username" id="username" placeholder="Username" pattern="^[a-zA-Z_\.0-9]{4,}" class="hidden">
+            <input type="password" name="password" id="password" placeholder="Password">
+            <div class="turnstile-container">
+                <div class="cf-turnstile" data-sitekey="0x4AAAAAACQpgCzEwFTFxjqF" data-callback="onTurnstileSuccess"></div>
+            </div>
+            <button type="submit">Go</button>
+        </form>
+        <!-- <script>
+            function onTurnstileSuccess() {
+                const form = document.querySelector("form");
+                form["cf-turnstile-response"].setCustomValidity("");
+                console.log(1111)
+            }
+        </script> -->
+    </div>
+</body>
+</html>

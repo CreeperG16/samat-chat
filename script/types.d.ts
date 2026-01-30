@@ -13,6 +13,12 @@ declare interface Message {
     created_at: string;
 }
 
+declare interface ClientMessage {
+    id: string;
+    chat_id: string;
+    content: string;
+}
+
 declare interface Chat {
     id: string;
     name: string;
@@ -26,6 +32,7 @@ declare interface CacheChannel {
     id: string;
     details: Chat;
     messages: Message[];
+    clientMessages: ClientMessage[];
     latestMessageAt: Date | null;
     oldestMessageAt: Date | null;
     lastFetchedAt: Date;
