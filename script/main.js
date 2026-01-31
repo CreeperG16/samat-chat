@@ -16,7 +16,7 @@ function setMenuState(open) {
 }
 
 async function sendMessage(content, chat_id) {
-    const newMessageId = crypto.randomUUID();
+    // const newMessageId = crypto.randomUUID();
 
     const { data, error } = await supabase.from("messages").insert({ content, chat_id });
 
