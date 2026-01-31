@@ -16,7 +16,7 @@ export const chatSockets = () => chatSocketMap;
 
 /** @param {CacheChannel} cacheChannel */
 export function updateCacheMessages(cacheChannel) {
-    cacheChannel.
+    // cacheChannel.
 
     cacheChannel.messages.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
     if (cacheChannel.messages.length === 0) return;

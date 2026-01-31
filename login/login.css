@@ -13,6 +13,16 @@
     }
 }
 
+#email-overlay {
+    position: absolute;
+    inset: 0;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
 button {
     border: none;
     padding: 1em 3em;
@@ -82,8 +92,8 @@ h1 {
             width: max-content;
             left: 0;
             transform-origin: left;
-            text-decoration: underline;
             cursor: pointer;
+            /* text-decoration: underline; */
             border-bottom: #fff solid 2px;
 
             &[data-mode=login] {
@@ -92,15 +102,31 @@ h1 {
             &[data-mode=signup] {
                 transform: translate(0, 1em) scale(.5);
             }
+
+            &::after {
+                content: "?";
+            }
         }
     }
 }
 
-input:is(.loading, :invalid, :placeholder-shown:not(.hidden)) ~ button[type=submit] {
+input:is(.loading, :invalid, :placeholder-shown):not(.hidden) ~ button[type=submit] {
     background-color: #4e5c74;
     color: #ddd;
     pointer-events: none;
     cursor: not-allowed;
+}
+
+#err-msg {
+    display: inline;
+    color: #ff2a2a;
+    /* margin: 1em 0 0 0; */
+    margin: 0 0 1em 0;
+    font-weight: 400;
+
+    &:empty {
+        display: none;
+    }
 }
 
 /* input.loading ~ button[type=submit],

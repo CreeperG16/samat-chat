@@ -23,6 +23,7 @@
             <!-- <span class="layout-placeholder">Log into</span> -->
             <span>samat chat</span>
         </h1>
+        <p id="err-msg"></p>
         <form>
             <input type="hidden" name="mode" id="mode-selector" value="login">
             <input type="email" name="email" id="email" placeholder="Email" pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$">
@@ -40,6 +41,10 @@
                 console.log(1111)
             }
         </script> -->
+    </div>
+    <div class="hidden" id="email-overlay">
+        <h1>Verify your email</h1>
+        <p>Check your inbox for an email. Click the link in the email to verify your account.</p>
     </div>
 </body>
 </html>
