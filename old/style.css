@@ -1,0 +1,300 @@
+#content {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 2.5%;
+}
+
+/* PANELS */
+.panel {
+    background-color: #2f3948;
+    border-radius: 0.75em;
+}
+
+#top-panel {
+    margin: 1.5% 1.5% 0 1.5%;
+    width: 97%;
+    height: 5%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    /* hide mobile menu button by default */
+    #menu-btn {
+        display: none;
+    }
+
+    /* USER INFO */
+    #user-info {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        width: auto;
+        height: 100%;
+
+        /* TODO: ?????????? */
+        width: 21.5%;
+
+        img {
+            width: 2em;
+            border-radius: 0.5em;
+            margin: 1em;
+        }
+
+        h1 {
+            font-size: larger;
+        }
+    }
+
+    #chat-info {
+        width: 100%;
+        font-size: larger;
+        font-weight: 600;
+        margin-left: 1.5em;
+        text-align: center;
+    }
+}
+
+#bottom-panel {
+    margin: 0 1.5% 1.5% 1.5%;
+    flex: 1 1 auto;
+    min-height: 0;
+    width: 97%;
+    display: flex;
+    flex-direction: row;
+    gap: 1.5%;
+}
+
+#main-panel {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+#chat-panel {
+    display: flex;
+    flex-direction: column-reverse;
+    width: 100%;
+    height: 100%;
+    overflow-y: scroll;
+}
+
+/* CHAT LIST IN SIDE PANEL */
+#side-panel {
+    width: 20%;
+    overflow: hidden;
+
+    div {
+        /* width: 100%; */
+        height: 1em;
+        /* background-color: blueviolet; */
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        padding: 0.75em;
+        font-size: larger;
+        font-weight: 900;
+        user-select: none;
+        transition: 100ms background-color;
+
+        #public-icon {
+            margin-left: 0.5em;
+            font-size: small;
+            color: #ccc;
+        }
+    }
+
+    div.selected-chat {
+        background-color: #4e5c74;
+    }
+
+    div:hover {
+        background-color: #4e5c94;
+    }
+}
+
+/* CHAT BOX */
+#chat-box {
+    flex: 0 0 5%;
+    border-top: solid 0.2em #4e5c74;
+    margin: 0 1.5%;
+    display: flex;
+    align-items: center;
+
+    #chat-field {
+        width: 100%;
+        outline: 0 solid transparent;
+        margin: 0 0.5em;
+        overflow: auto;
+        height: 1em;
+    }
+
+    #chat-field:focus ~ #chat-placeholder {
+        display: none !important;
+    }
+
+    #chat-field:has(br:first-child:last-child) ~ #chat-placeholder,
+    #chat-field:empty ~ #chat-placeholder {
+        display: inline;
+    }
+
+    #chat-placeholder {
+        display: none;
+        position: absolute;
+        margin: 0 0.5em;
+        color: #888;
+        user-select: none;
+        pointer-events: none;
+    }
+
+    &.hidden {
+        display: none;
+    }
+}
+
+/* MESSAGES */
+.message {
+    margin: 0.4em 1em;
+    display: flex;
+    flex-direction: row;
+    font-size: larger;
+
+    .message-pfp img {
+        width: 2.5em;
+        height: 2.5em;
+        border-radius: 0.625em;
+    }
+
+    .message-body {
+        display: flex;
+        flex-direction: column;
+        align-items: start;
+        margin: 0 0.5em;
+
+        .message-info {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 0.5em;
+
+            .message-author {
+                font-weight: 900;
+            }
+
+            .message-timestamp {
+                font-weight: 100;
+                color: #aaa;
+                font-size: 0.8em;
+            }
+        }
+    }
+
+    &.own-message {
+        flex-direction: row-reverse;
+        justify-content: right;
+
+        .message-body {
+            align-items: end;
+
+            .message-info {
+                flex-direction: row-reverse;
+                text-align: right;
+            }
+
+            .message-content {
+                text-align: right;
+            }
+        }
+    }
+}
+
+.message-divider {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    color: #aaa;
+    margin: 0.5em 0;
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+    /* TODO: when the keyboard opens, does it shrink the entire website? */
+    #top-panel {
+        margin: 3% 3% 0 3%;
+        width: 94%;
+        height: 5%;
+        /* background-color: red; */
+
+        #menu-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.5em;
+            height: 2em;
+            color: #fff;
+            font-size: x-large;
+        }
+
+        #user-info {
+            border-right: none;
+        }
+
+        #chat-info {
+            margin-left: 0;
+        }
+    }
+
+    #bottom-panel {
+        display: flex;
+        margin: 0 3% 3% 3%;
+        width: 94%;
+        height: 100%;
+    }
+
+    #main-panel {
+        width: 100%;
+    }
+
+    #side-panel {
+        display: flex;
+        width: 100%;
+        flex-direction: column;
+    }
+
+    #content {
+        &:not([data-showmenu]) {
+            #top-panel {
+                flex-direction: row-reverse;
+                #user-info {
+                    display: none;
+                }
+                #menu-btn::before {
+                    content: "☰";
+                }
+            }
+
+            #bottom-panel {
+                #side-panel {
+                    display: none;
+                }
+            }
+        }
+
+        &[data-showmenu] {
+            #top-panel {
+                #menu-btn {
+                    display: none;
+                }
+            }
+
+            #bottom-panel {
+                #main-panel {
+                    display: none;
+                }
+            }
+        }
+    }
+}

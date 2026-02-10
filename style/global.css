@@ -9,6 +9,11 @@ body {
     overflow: hidden;
 }
 
+button {
+    font-family: inherit;
+    border: none;
+}
+
 .hidden {
     display: none !important;
 }

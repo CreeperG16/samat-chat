@@ -8,42 +8,140 @@
     <link rel="stylesheet" href="./style/style.css">
     <link rel="icon" type="image/png" href="./images/samat-chat-favicon.png">
     <script type="importmap">
-        {
-            "imports": { "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js" }
-        }
+        { "imports": { "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js" } }
     </script>
 </head>
 <body>
-    <div id="content" data-showmenu="true">
-        <div id="top-panel" class="panel">
-            <div id="user-info"></div>
-            <div id="chat-info"></div>
-            <div id="menu-btn"></div> <!-- for mobile screens -->
+    <div id="content">
+        <div class="nav">
+            <div class="nav-item messages selected">
+                <!-- MESSAGES ICON -->
+                <img src="images/samat-chat-favicon.png" alt="messages">
+                <p>Messages</p>
+            </div>
+            <div class="nav-item channels">
+                <img src="images/samat-chat-favicon.png" alt="messages">
+                <p>Channels</p>
+            </div>
+            <div class="nav-item friends">
+                <img src="images/user.svg" alt="messages">
+                <p>Friends</p>
+            </div>
+            <div class="nav-item profile">
+                <img src="images/user.svg" alt="messages">
+                <p>Profile</p>
+            </div>
+
         </div>
-        <div id="bottom-panel">
-            <div id="side-panel" class="panel"></div>
-            <div id="main-panel" class="panel">
-                <div id="chat-panel"></div>
-                <template id="message">
-                    <div data-messageid="" class="message">
-                        <div class="message-pfp">
-                            <img src="images/user.svg" alt="user">
+        <div class="menu-container">
+            <!-- Messages selector -->
+            <div class="menu messages-menu">
+                <template id="message-card">
+                    <div class="message-card">
+                        <div class="img-container">
+                            <img src="images/user.svg" alt="User profile image">
                         </div>
-                        <div class="message-body">
-                            <div class="message-info">
-                                <div class="message-author"></div>
-                                <div class="message-timestamp">12:34</div>
-                            </div>
-                            <div class="message-content"></div>
+                        <div class="details">
+                            <div class="contact-name"></div>
+                            <div class="message-peek"></div>
                         </div>
                     </div>
                 </template>
-                <div id="chat-box">
-                    <span id="chat-field" contenteditable="true"></span>
-                    <span id="chat-placeholder">Type a message...</span>
+            </div>
+            <!-- Channels selector -->
+            <div class="menu channels-menu hidden">
+                <template id="channel-card">
+                    <div class="channel-card">
+                        <p class="channel-name"></p>
+                    </div>
+                </template>
+            </div>
+            <!-- Friends menu -->
+            <div class="menu friends-menu hidden">
+                <template id="friend-card">
+                    <div class="friend-card">
+                        <div class="img-container">
+                            <img src="images/user.svg" alt="User profile image">
+                        </div>
+                        <div class="details">
+                            <div class="contact-name"></div>
+                        </div>
+                        <div class="actions">
+                            <!-- Fill according to type with JS -->
+                        </div>
+                    </div>
+                </template>
+                <div class="section incoming">
+                    <div class="section-header">Incoming friend requests</div>
+                </div>
+                <div class="section outgoing">
+                    <div class="section-header" data-count="1">Outgoing friend requests</div>
+                </div>
+                <div class="section friends"> 
+                    <div class="section-header">Friends</div>
+                </div>
+            </div>
+            <!-- Profile menu -->
+            <div class="menu profile-menu hidden">
+                <div class="profile-card">
+                    <div class="img-wrapper">
+                        <img src="images/user.svg" alt="Profile picture" class="profile-img">
+                    </div>
+                    <div class="details">
+                        <p class="display-name"></p>
+                        <p class="username"></p>
+                    </div>
+                    <button class="logout">
+                        <img src="images/logout.svg" alt="Logout button">
+                    </button>
+                </div>
+
+                <div class="personal-details">
+                    <template id="personal-detail">
+                        <div class="personal-detail">
+                            <p class="type"></p>
+                            <p class="value"></p>
+                            <button class="edit">✎</button>
+                        </div>
+                    </template>
+                </div>
+
+                <div class="security">
+                    <div class="security-entry password">
+                        <p class="name">Password</p>
+                        <div class="actions">
+                            <button>Change</button>
+                        </div>
+                    </div>
+                    <div class="security-entry mfa">
+                        <p class="name">Multi-factor authentication</p>
+                        <div class="actions">
+                            <button>Add a factor</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
+        <!-- Main content, e.g. messages -->
+        <div class="main">
+            <div class="message-container">
+                <!-- Messages -->
+            </div>
+            <div class="friends-container hidden">
+                <!-- Friends -->
+            </div>
+            <div class="profile-container hidden">
+                <!-- Profile, settings, etc. -->
+            </div>
+        </div>
+    </div>
+
+    <div id="err-banner">
+        <p class="title">Error</p>
+        <p class="where"></p>
+        <pre class="message"></pre>
+        <div class="progress"></div>
+        <button onclick="this.parentElement.classList.remove('has-err')">X</button>
     </div>
 
     <script type="module" src="./script/main.js"></script>
