@@ -3,6 +3,8 @@ import { supabase } from "./supabase.js";
 import { showError } from "./misc.js";
 // import "./types-new.d.ts";
 
+const OFFLINE_DEV = false;
+
 const currentSession = {
     session: null,
     user: null,
@@ -295,9 +297,47 @@ function renderProfile() {
 }
 
 /** @param {HTMLDivElement} profileMenu */
-function addProfileEvents(profileMenu) {}
+function addProfileEvents(profileMenu) {
+    const pfpImgWrapper = profileMenu.querySelector(".profile-card .img-wrapper");
+    pfpImgWrapper.addEventListener("click", () => {
+        // TODO: change profile picture (file select, supabase storage, etc)
+    });
+
+    const logoutBtn = profileMenu.querySelector(".profile-card .logout");
+    logoutBtn.addEventListener("click", async () => {
+        // TODO: show confirmation dialog
+
+        const { error } = await supabase.auth.signOut();
+        if (error) {
+            showError("logoutBtn.on('click') / supabase.auth.signOut()", error);
+            return;
+        }
+
+        localStorage.removeItem("device-session-token");
+        console.log("Logged out!");
+        window.location.href = "/login";
+    })
+}
 
 async function isLoggedIn() {
+    if (OFFLINE_DEV) {
+        currentSession.profile = {
+            id: "ce1320cf-5d94-4f34-91ef-08fb14be8e33",
+            username: "user",
+            display_name: "Just A User",
+            profile_image: GENERIC_USER,
+        };
+        currentSession.user = {
+            id: "ce1320cf-5d94-4f34-91ef-08fb14be8e33",
+            email: "user@example.com",
+        };
+        currentSession.session = {
+            id: "a5f86bdf-5781-470e-907c-bd7a7a0b55e3",
+        }
+
+        return true;
+    }
+
     const { data, error } = await supabase.auth.getSession();
 
     if (error) {

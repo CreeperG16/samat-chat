@@ -394,6 +394,7 @@
             .security-entry {
                 color: #9ba4b4;
                 padding: 0 1em;
+                font-size: 1em;
                 display: flex;
                 flex-direction: row;
                 align-items: center;
@@ -408,6 +409,8 @@
                     white-space: nowrap;
                     padding: .6em;
                     border-radius: .5em;
+                    cursor: pointer;
+                    font-size: 1em;
 
                     &:hover {
                         background-color: #3c4656;
