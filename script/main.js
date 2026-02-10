@@ -1,5 +1,6 @@
 import { GENERIC_USER } from "./constants.js";
 import { supabase } from "./supabase.js";
+import { showError } from "./misc.js";
 // import "./types-new.d.ts";
 
 const currentSession = {
@@ -7,21 +8,6 @@ const currentSession = {
     user: null,
     profile: null,
 };
-
-function showError(where, err) {
-    console.error(`Error in ${where}:`, err);
-
-    const errBanner = document.querySelector("#err-banner");
-
-    const fmtErr = (e) => e.toString() + (e.stack ? " - at:\n" + e.stack : "");
-
-    errBanner.querySelector(".where").innerHTML = where;
-    errBanner.querySelector(".message").innerHTML =
-        err instanceof Error ? fmtErr(err) : JSON.stringify(err);
-
-    errBanner.classList.add("has-err");
-    setTimeout(() => errBanner.classList.remove("has-err"), 10_000);
-}
 
 document.querySelectorAll(".nav-item").forEach((navItem) => {
     navItem.addEventListener("click", () => {

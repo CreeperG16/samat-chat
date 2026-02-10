@@ -47,5 +47,12 @@
         <h1>Verify your email</h1>
         <p>Check your inbox for an email. Click the link in the email to verify your account.</p>
     </div>
+    <div id="err-banner">
+        <p class="title">Error</p>
+        <p class="where"></p>
+        <pre class="message"></pre>
+        <div class="progress"></div>
+        <button onclick="this.parentElement.classList.remove('has-err')">X</button>
+    </div>
 </body>
 </html>

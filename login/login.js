@@ -1,5 +1,5 @@
 import { supabase } from "../script/supabase.js";
-import { showError } from "../old/misc.js";
+import { showError } from "../script/misc.js";
 import { MIN_PWD_LEN } from "../script/constants.js";
 
 const redirect = (path) => (window.location.href = path);

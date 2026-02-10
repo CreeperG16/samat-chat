@@ -17,10 +17,6 @@
     display: none;
 }
 
-#err-banner {
-    display: none;
-}
-
 /* MOBILE */
 @media (max-width: 768px) {
     .nav {
@@ -437,76 +433,6 @@
 
         &.drawer-open {
             left: 0;
-        }
-    }
-
-    #err-banner {
-        display: flex;
-        opacity: 0;
-        pointer-events: none;
-        position: absolute;
-        top: 1em;
-        left: 1em;
-        right: 1em;
-        padding: 1em;
-        background-color: #c02121;
-        border-radius: 1em;
-        box-shadow: .2em .2em 1em #0008;
-        flex-direction: column;
-        gap: .5em;
-        transition: 150ms opacity ease;
-
-        &.has-err {
-            opacity: 1;
-            pointer-events: all;
-        }
-
-        .progress {
-            content: "";
-            font-size: larger;
-            height: 4px;
-            border-radius: 4px;
-            width: 100%;
-            background-color: #fff;
-            transition: 10s width;
-        }
-
-        &.has-err .progress {
-            width: 0;
-        }
-
-        .title {
-            margin: 0;
-            padding: 0;
-            font-size: 1em;
-        }
-
-        .where {
-            margin: 0;
-            padding: 0;
-            font-size: .75em;
-        }
-
-        .message {
-            background-color: #911919;
-            padding: .75em;
-            max-height: 5em;
-            /* white-space: pre-wrap; */
-            overflow: auto;
-            margin: 0;
-        }
-
-        button {
-            border: none;
-            background-color: inherit;
-            padding: .5em;
-            border-radius: .75em;
-            color: #fff;
-            font-weight: 900;
-        }
-
-        button:hover {
-            background-color: #f54b4b;
         }
     }
 }
