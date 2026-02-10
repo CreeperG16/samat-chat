@@ -23,6 +23,9 @@ function showErrorParam() {
             case "invalid_credentials":
                 setErrorMsg("Invalid email or password");
                 return;
+            case "failed_to_create_session":
+                setErrorMsg("An unknown error occured while creating your session - contact support");
+                return;
             default:
                 setErrorMsg(
                     `ERR: '${params.get("err")}' - An unknown error has occured. Check the console for details.`
@@ -126,7 +129,7 @@ form.addEventListener("submit", async (e) => {
     if (!form.checkValidity()) return alert("invalid");
 
     if (form.mode.value === "login") {
-        const { error } = await supabase.auth.signInWithPassword({
+        const { error, data } = await supabase.auth.signInWithPassword({
             email: form.email.value,
             password: form.password.value,
             options: { captchaToken: form["cf-turnstile-response"].value },
@@ -144,6 +147,18 @@ form.addEventListener("submit", async (e) => {
             return;
         }
 
+        supabase.functions.setAuth(data.session.access_token);
+        const { data: session, error: sessionErr } = await supabase.functions.invoke("create-session", { body: { deviceType: "web" } });
+
+        if (sessionErr) {
+            showError("create-session", sessionErr);
+            await supabase.auth.signOut();
+            redirect(`/login/?err=failed_to_create_session`);
+            return;
+        }
+
+        localStorage.setItem("device-session-token", session.deviceSessionToken);
+
         redirect("/");
 
         return;
@@ -152,7 +167,7 @@ form.addEventListener("submit", async (e) => {
             email: form.email.value,
             password: form.password.value,
             options: {
-                data: { username: form.username.value, full_name: "TODO" },
+                data: { username: form.username.value },
                 captchaToken: form["cf-turnstile-response"].value,
             },
         });

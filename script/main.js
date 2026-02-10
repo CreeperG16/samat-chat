@@ -4,6 +4,8 @@ import { showError } from "./misc.js";
 import { renderChatSelector, renderMessages } from "./render.js";
 import { channelCache, chatSockets, getCurrentUser, setCurrentUser, updateCacheMessages } from "./session.js";
 
+const SESSION_TOKEN = localStorage.getItem("device-session-token");
+
 /** @param {boolean} open */
 function setMenuState(open) {
     /** @type {HTMLDivElement} */
@@ -248,16 +250,33 @@ async function main() {
         return;
     }
 
-    if (!data.session) {
+    if (!data.session || !SESSION_TOKEN) {
         console.log("not logged in");
+
+        if (!SESSION_TOKEN) await supabase.auth.signOut();
+
         window.location.href = "/login";
         return;
-    } else {
-        await chatSession(data.session);
+    }  
+
+    const { data: hasValidSession, error: deviceSessionErr } = await supabase.rpc("valid_device_session");
+    if (deviceSessionErr) {
+        showError("main() / valid_device_session()", deviceSessionErr);
+        await supabase.auth.signOut();
+        window.location.href = "/login";
         return;
     }
+
+    if (!hasValidSession) {
+        console.log("not logged in - no valid session");
+
+        await supabase.auth.signOut();
+        window.location.href = "/login";
+        return;
+    }
+
+    await chatSession(data.session);
+    return;
 }
 
 main();
-
-// const { isLoggedIn, session } = await initAndShowLogin(chatSession);
