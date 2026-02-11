@@ -5,10 +5,10 @@ import { supabase } from "../supabase.js";
 
 export async function fetchFriends() {
     const { data: relationshipData, error } = await supabase.from("relationships").select(`
-            status,
-            user_1:profiles!relationships_user_1_fkey(*),
-            user_2:profiles!relationships_user_2_fkey(*)
-        `);
+        status,
+        user_1:profiles!relationships_user_1_fkey(*),
+        user_2:profiles!relationships_user_2_fkey(*)
+    `);
 
     if (error) {
         showError("fetchFriends() / select ... from relationships", error);

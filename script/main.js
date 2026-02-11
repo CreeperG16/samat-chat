@@ -117,11 +117,19 @@ function updateProfileImage() {
     profileIcon.src = session.get().profile.profile_image;
 }
 
+function enableBackButton() {
+    const main = document.querySelector(".main");
+    main.querySelector(".message-container .header .back-btn").addEventListener("click", () =>
+        main.classList.remove("drawer-open")
+    );
+}
+
 async function main() {
     const loggedIn = await isLoggedIn();
     if (!loggedIn) return;
 
     updateProfileImage();
+    enableBackButton();
 
     const [conversations, channels, friends] = await Promise.all([fetchDMs(), fetchChannels(), fetchFriends()]);
 

@@ -138,13 +138,35 @@
         </div>
         <!-- Main content, e.g. messages -->
         <div class="main">
-            <div class="message-container">
-                <!-- Messages -->
+            <div class="container message-container">
+                <div class="header">
+                    <button class="back-btn"><</button>
+                    <p class="chat-name"></p>
+                </div>
+                <div class="messages"></div>
+                <template id="message-template">
+                    <div class="message">
+                        <div class="message-pfp">
+                            <img src="images/user.svg" alt="User profile picture">
+                        </div>
+                        <div class="message-body">
+                            <div class="message-info">
+                                <div class="message-author"></div>
+                                <div class="message-timestamp"></div>
+                            </div>
+                            <div class="message-content"></div>
+                        </div>
+                    </div>
+                </template>
+                <div class="chat-box">
+                    <span class="chat-field" contenteditable="true"></span>
+                    <span class="chat-placeholder">Type a message...</span>
+                </div>
             </div>
-            <div class="friends-container hidden">
+            <div class="container friends-container hidden">
                 <!-- Friends -->
             </div>
-            <div class="profile-container hidden">
+            <div class="container profile-container hidden">
                 <!-- Profile, settings, etc. -->
             </div>
         </div>

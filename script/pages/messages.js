@@ -4,25 +4,24 @@ import { session } from "../session.js";
 import { supabase } from "../supabase.js";
 
 export async function fetchDMs() {
-    const { data: conversations, error: fetchConvsErr } = await supabase
+    const { data, error } = await supabase
         .from("chats")
         .select(
             `*,
-            chat_members (
-                profiles (*)
-            ),
-            messages (*)`
+            chat_members(profiles(*)),
+            messages(*)`
         )
         .in("type", ["direct", "group"])
         .order("created_at", { referencedTable: "messages", ascending: false })
-        .limit(1, { referencedTable: "messages" });
+        .limit(1, { referencedTable: "messages" })
+        .order("updated_at", { ascending: false });
 
-    if (fetchConvsErr) {
-        showError("fetchDMs() / select ... from chats", fetchConvsErr);
+    if (error) {
+        showError("fetchDMs() / select ... from chats", error);
         return;
     }
 
-    return conversations;
+    return data;
 }
 
 /** @param {Chat[]} conversations @returns {HTMLDivElement} */
@@ -52,7 +51,12 @@ export function renderDMCards(conversations) {
                 contactName.appendChild(document.createTextNode(conversation.name));
             }
 
-            messagePeek.appendChild(document.createTextNode(conversation.messages[0].content));
+            if (conversation.messages.length > 0) {
+                messagePeek.appendChild(document.createTextNode(conversation.messages[0].content));
+            } else {
+                messagePeek.innerHTML = "No messages yet";
+                messagePeek.classList.add("no-messages");
+            }
 
             cardDiv.dataset.id = conversation.id;
 
@@ -66,4 +70,23 @@ export function renderDMCards(conversations) {
 }
 
 /** @param {HTMLDivElement} messagesMenu */
-export function addDMEvents(messagesMenu) {}
+export function addDMEvents(messagesMenu) {
+    /** @type {HTMLDivElement} */
+    const mainPanel = document.querySelector(".main");
+    const messageContainer = mainPanel.querySelector(".message-container");
+
+    mainPanel.querySelectorAll(".container").forEach(x => x.classList.add("hidden"));
+    messageContainer.classList.remove("hidden");
+
+    /** @param {PointerEvent} ev */
+    const onMessageCardClick = (ev) => {
+        const chatId = ev.target.dataset.id;
+        // messageContainer.innerHTML = chatId
+
+        mainPanel.classList.add("drawer-open");
+    };
+
+    document
+        .querySelectorAll(".messages-menu .message-card")
+        .forEach((c) => c.addEventListener("click", onMessageCardClick));
+}
