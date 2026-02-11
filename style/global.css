@@ -18,6 +18,73 @@ button {
     display: none !important;
 }
 
+#confirm-dialog {
+    opacity: 0;
+    pointer-events: none;
+    display: flex;
+    position: absolute;
+    inset: 0;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 150ms ease;
+    background-color: #0004;
+
+    .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background-color: #252c36;
+        padding: 1em;
+        border-radius: .5em;
+        box-shadow: .2em .2em 1em #0008;
+    }
+
+    p {
+        margin: 0 0 1em 0;
+        padding: 0;
+    }
+
+    .title {
+        color: #9ba4b4;
+        font-size: .9em;
+    }
+
+    .actions {
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+        gap: 1em;
+    }
+
+    button {
+        width: 100%;
+        background-color: #3c4656;
+        color: #fff;
+        padding: .5em;
+        border-radius: .5em;
+        font-size: 1em;
+        text-transform: uppercase;
+        transition: background-color 100ms ease, transform 100ms ease;
+
+        &:active {
+            transform: translate(.1em, .1em);
+        }
+    }
+
+    .cancel:hover {
+        background-color: #c02121;
+    }
+
+    .confirm:hover {
+        background-color: #1db424;
+    }
+
+    &.show {
+        opacity: 1;
+        pointer-events: all;
+    }
+}
+
 @media (max-width: 768px) {
     #err-banner {
         display: flex;
@@ -33,7 +100,7 @@ button {
         box-shadow: .2em .2em 1em #0008;
         flex-direction: column;
         gap: .5em;
-        transition: 150ms opacity ease;
+        transition: opacity 150ms ease;
 
         &.has-err {
             opacity: 1;
@@ -47,7 +114,7 @@ button {
             border-radius: 4px;
             width: 100%;
             background-color: #fff;
-            transition: 10s width;
+            transition: width 10s;
         }
 
         &.has-err .progress {

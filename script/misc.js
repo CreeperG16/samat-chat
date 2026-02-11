@@ -6,9 +6,36 @@ export function showError(where, err) {
     const fmtErr = (e) => e.toString() + (e.stack ? " - at:\n" + e.stack : "");
 
     errBanner.querySelector(".where").innerHTML = where;
-    errBanner.querySelector(".message").innerHTML =
-        err instanceof Error ? fmtErr(err) : JSON.stringify(err);
+    errBanner.querySelector(".message").innerHTML = err instanceof Error ? fmtErr(err) : JSON.stringify(err, null, 2);
 
     errBanner.classList.add("has-err");
     setTimeout(() => errBanner.classList.remove("has-err"), 10_000);
+}
+
+/**
+ * @param {string} message
+ * @param {() => void | Promise<void>} onConfirm
+ * @param {() => void | Promise<void>} onCancel
+ */
+export function showConfirmDialog(message, onConfirm, onCancel = () => {}) {
+    /** @type {HTMLDivElement} */
+    const confirmDialog = document.querySelector("#confirm-dialog");
+
+    const msgElement = confirmDialog.querySelector(".message");
+    msgElement.innerHTML = "";
+    msgElement.appendChild(document.createTextNode(message));
+
+    /** @param {PointerEvent} ev */
+    const btnClickCallback = (ev) => {
+        confirmDialog.classList.remove("show");
+        confirmDialog
+            .querySelectorAll(".actions button")
+            .forEach((b) => b.removeEventListener("click", btnClickCallback));
+
+        if (ev.target.classList.contains("cancel")) return onCancel();
+        if (ev.target.classList.contains("confirm")) return onConfirm();
+    };
+
+    confirmDialog.querySelectorAll(".actions button").forEach((b) => b.addEventListener("click", btnClickCallback));
+    confirmDialog.classList.add("show");
 }
