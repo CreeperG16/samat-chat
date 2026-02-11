@@ -1,0 +1,110 @@
+@media (max-width: 768px) {
+    .friends-menu {
+        display: flex;
+        flex-direction: column;
+
+        .section-header {
+            text-transform: uppercase;
+            color: #8996ac;
+            padding: .8em;
+            margin: 0;
+            margin-top: 1.2em;
+            user-select: none;
+
+            transition: background-color 150ms ease;
+
+            &[data-count]::after {
+                content: " - " attr(data-count);
+            }
+
+            &:hover {
+                background-color: #2c333e;
+            }
+        }
+        
+        .section {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .section:not(:has(.friend-card)) {
+            display: none;
+        }
+
+        .friend-card {
+            display: flex;
+            flex-direction: row;
+            
+            width: calc(100% - 2em);
+            padding: .75em 1em;
+            gap: 1em;
+
+            background-color: #21212c;
+            transition: background-color 150ms ease;
+
+            .img-container {
+                width: 3em;
+                height: 3em;
+                flex: 0 0 auto;
+                overflow: hidden;
+                border-radius: 50%;
+                background-color: #252c36;
+            }
+            img {
+                width: 3em;
+                height: 3em;
+            }
+
+            .details {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                width: 100%;
+            }
+
+            &:hover {
+                background-color: #2c333e;
+
+                .actions {
+                    display: flex;
+                }
+            }
+
+            .actions {
+                display: none;
+                flex-direction: row;
+                align-items: center;
+                gap: .5em;
+
+                button {
+                    width: 2.5em;
+                    height: 2.5em;
+                    border-radius: 50%;
+                    border: none;
+                    text-align: center;
+                    background-color: #485160;
+                    color: #fff;
+                    font-weight: 900;
+                    transform: translate(0, 0);
+                    transition: background-color 150ms ease, 150ms transform ease;
+                }
+
+                button:hover {
+                    background-color: #8996ac;
+                }
+
+                button.remove:hover {
+                    background-color: #d62626;
+                }
+
+                button.accept:hover {
+                    background-color: #1db424;
+                }
+
+                button:active {
+                    transform: translate(.1em, .1em);
+                }
+            }
+        }
+    }
+}

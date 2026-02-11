@@ -33,6 +33,7 @@ document.querySelectorAll(".nav-item").forEach((navItem) => {
     });
 });
 
+// Check if logged in, and set current session object if so
 async function isLoggedIn() {
     if (OFFLINE_DEV) {
         session.setProfile({

@@ -7,7 +7,7 @@
     <title>login | samat chat</title>
     <link rel="stylesheet" href="style/global.css">
     <link rel="stylesheet" href="login/login.css">
-    <link rel="icon" type="image/png" href="images/samat-chat-favicon.png">
+    <link rel="icon" type="image/png" href="images/favicon.png">
     <script type="importmap">
         { "imports": { "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js" } }
     </script>
@@ -21,10 +21,11 @@
                 <span class="mode selected" data-mode="login">Log into</span>
                 <span class="mode" data-mode="signup">Sign up for</span>
             </span>
-            <!-- <span class="layout-placeholder">Log into</span> -->
             <span>samat chat</span>
         </h1>
+
         <p id="err-msg"></p>
+
         <form>
             <input type="hidden" name="mode" id="mode-selector" value="login">
             <input type="email" name="email" id="email" placeholder="Email" pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$">
@@ -35,18 +36,13 @@
             </div>
             <button type="submit">Go</button>
         </form>
-        <!-- <script>
-            function onTurnstileSuccess() {
-                const form = document.querySelector("form");
-                form["cf-turnstile-response"].setCustomValidity("");
-                console.log(1111)
-            }
-        </script> -->
     </div>
+
     <div class="hidden" id="email-overlay">
         <h1>Verify your email</h1>
         <p>Check your inbox for an email. Click the link in the email to verify your account.</p>
     </div>
+
     <div id="err-banner">
         <p class="title">Error</p>
         <p class="where"></p>
@@ -54,6 +50,7 @@
         <div class="progress"></div>
         <button onclick="this.parentElement.classList.remove('has-err')">X</button>
     </div>
+
     <div id="confirm-dialog" class="">
         <div class="container">
             <p class="title">Confirm</p>

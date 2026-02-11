@@ -4,9 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>samat chat</title>
+    <link rel="icon" type="image/png" href="./images/favicon.png">
+    
+    <!-- Styles -->
     <link rel="stylesheet" href="./style/global.css">
     <link rel="stylesheet" href="./style/style.css">
-    <link rel="icon" type="image/png" href="./images/samat-chat-favicon.png">
+    <link rel="stylesheet" href="./style/nav.css">
+    
+    <!-- Different pages -->
+    <link rel="stylesheet" href="./style/pages/messages.css">
+    <link rel="stylesheet" href="./style/pages/channels.css">
+    <link rel="stylesheet" href="./style/pages/friends.css">
+    <link rel="stylesheet" href="./style/pages/profile.css">
+    
     <script type="importmap">
         { "imports": { "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js" } }
     </script>
@@ -16,11 +26,11 @@
         <div class="nav">
             <div class="nav-item messages selected">
                 <!-- MESSAGES ICON -->
-                <img src="images/samat-chat-favicon.png" alt="messages">
+                <img src="images/favicon.png" alt="messages">
                 <p>Messages</p>
             </div>
             <div class="nav-item channels">
-                <img src="images/samat-chat-favicon.png" alt="messages">
+                <img src="images/favicon.png" alt="messages">
                 <p>Channels</p>
             </div>
             <div class="nav-item friends">
@@ -33,6 +43,7 @@
             </div>
 
         </div>
+
         <div class="menu-container">
             <!-- Messages selector -->
             <div class="menu messages-menu">
@@ -48,6 +59,7 @@
                     </div>
                 </template>
             </div>
+
             <!-- Channels selector -->
             <div class="menu channels-menu hidden">
                 <template id="channel-card">
@@ -56,6 +68,7 @@
                     </div>
                 </template>
             </div>
+
             <!-- Friends menu -->
             <div class="menu friends-menu hidden">
                 <template id="friend-card">
@@ -81,6 +94,7 @@
                     <div class="section-header">Friends</div>
                 </div>
             </div>
+
             <!-- Profile menu -->
             <div class="menu profile-menu hidden">
                 <div class="profile-card">
