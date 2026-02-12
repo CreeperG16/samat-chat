@@ -1,7 +1,7 @@
 import { GENERIC_USER } from "./constants.js";
 import { supabase } from "./supabase.js";
 import { showError } from "./misc.js";
-import { session } from "./session.js";
+import { addMsgsToCache, channelCache, removeMsgsFromCache, session } from "./session.js";
 import { initRouter, navigate } from "./router.js";
 import { addDMEvents, fetchDMs, renderDMCards, renderMessagesMenu } from "./pages/messages.js";
 import { addChannelEvents, fetchChannels, renderChannelCards, renderChannelsMenu } from "./pages/channels.js";
@@ -99,29 +99,15 @@ function enableBackButton() {
     const main = document.querySelector(".main");
     main.querySelector(".message-container .header .back-btn").addEventListener("click", () =>
         // main.classList.remove("drawer-open")
-        navigate("/")
+        // navigate("/")
+        history.go(-1)
     );
 }
 
+const channelMap = new Map();
 async function main() {
     const loggedIn = await isLoggedIn();
     if (!loggedIn) return;
-
-    initRouter({
-        "/": renderMessagesMenu,
-        "/channels": renderChannelsMenu,
-        "/friends": renderFriendsMenu,
-        "/profile": renderProfileMenu,
-
-        "/chat/:chat_id": renderChatView,
-    });
-
-    const redirect = sessionStorage.getItem("redirect");
-    if (redirect) {
-        sessionStorage.removeItem("redirect");
-        // console.log("Redirected to", redirect);
-        navigate(redirect);
-    }
 
     updateProfileImage();
     enableBackButton();
@@ -145,6 +131,68 @@ async function main() {
 
     const profileMenu = renderProfile();
     addProfileEvents(profileMenu);
+
+    supabase.realtime.setAuth(session.get().session.access_token);
+
+    for (const chat of [...conversations, ...channels]) {
+        const realtimeChannel = supabase.realtime.channel(`chat:${chat.id}`, {
+            config: { private: true },
+        });
+
+        channelCache.set(chat.id, {
+            messages: [],
+            lastFetchedAt: null,
+            latestMessageAt: null,
+            oldestMessageAt: null,
+        });
+
+        // [null,null,"realtime:chat:a6c7f2d5-8376-46b5-a948-0b786736a2cc","broadcast",{"event":"message-delete","meta":{"id":"9fb15cc6-8d14-41ee-984b-fafc4faa4191"},"payload":{"id": "9fb15cc6-8d14-41ee-984b-fafc4faa4191", "message": {"id": "b1313a21-2f09-4bb3-9f67-257236496543", "chat_id": "a6c7f2d5-8376-46b5-a948-0b786736a2cc"}},"type":"broadcast"}]
+        // [null,null,"realtime:chat:a6c7f2d5-8376-46b5-a948-0b786736a2cc","broadcast",{"event":"message-create","meta":{"id":"1df7a773-20f8-424b-b24e-328732c155e7"},"payload":{"id": "1df7a773-20f8-424b-b24e-328732c155e7", "message": {"id": "b1313a21-2f09-4bb3-9f67-257236496543", "author": {"id": "fea87db4-0002-4336-aa28-8cafd312bad3", "username": "samat", "profile_image": "https://www.samat.hu/images/favicon.png"}, "chat_id": "a6c7f2d5-8376-46b5-a948-0b786736a2cc", "content": "aaaaaaamessage inaa chat", "created_at": "2026-02-12T15:36:49.501178+00:00"}},"type":"broadcast"}]
+
+        const handleMsgEvent = ({ event, payload }) => {
+            const { chat_id } = payload.message;
+            const channelCacheEntry = channelCache.get(chat_id);
+
+            if (!channelCacheEntry) {
+                console.warn("Message  received for unknown channel '%s'.", chat_id);
+                return;
+            }
+
+            if (event === "message-delete") {
+                removeMsgsFromCache(payload.message);
+                // TODO: event to UI?
+                return;
+            }
+
+            // message-create
+            addMsgsToCache(payload.message);
+        }
+
+        realtimeChannel
+            .on("broadcast", { event: "message-create" }, handleMsgEvent)
+            .on("broadcast", { event: "message-delete" }, handleMsgEvent)
+            .subscribe();
+
+        channelMap.set(chat.id, realtimeChannel);
+    }
+
+    // console.log(channelMap);
+
+    initRouter({
+        "/": renderMessagesMenu,
+        "/channels": renderChannelsMenu,
+        "/friends": renderFriendsMenu,
+        "/profile": renderProfileMenu,
+
+        "/chat/:chat_id": renderChatView,
+    });
+
+    const redirect = sessionStorage.getItem("redirect");
+    if (redirect) {
+        sessionStorage.removeItem("redirect");
+        // console.log("Redirected to", redirect);
+        navigate(redirect);
+    }
 }
 
 main();

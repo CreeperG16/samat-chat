@@ -1,5 +1,6 @@
 import { showError } from "../misc.js";
 import { hideDrawer, resetMenuContainer, selectNavItem } from "../nav.js";
+import { navigate } from "../router.js";
 import { supabase } from "../supabase.js";
 
 export async function fetchChannels() {
@@ -43,7 +44,24 @@ export function renderChannelCards(channels) {
 }
 
 /** @param {HTMLDivElement} channelsMenu */
-export function addChannelEvents(channelsMenu) {}
+export function addChannelEvents(channelsMenu) {
+    /** @type {HTMLDivElement} */
+    const mainPanel = document.querySelector(".main");
+    const messageContainer = mainPanel.querySelector(".message-container");
+
+    mainPanel.querySelectorAll(".container").forEach(x => x.classList.add("hidden"));
+    messageContainer.classList.remove("hidden");
+
+    /** @param {PointerEvent} ev */
+    const onChannelCardClick = (ev) => {
+        const chatId = ev.currentTarget.dataset.id;
+        navigate(`/chat/${chatId}`);
+    };
+
+    document
+        .querySelectorAll(".channels-menu .channel-card")
+        .forEach((c) => c.addEventListener("click", onChannelCardClick));
+}
 
 export function renderChannelsMenu() {
     resetMenuContainer();

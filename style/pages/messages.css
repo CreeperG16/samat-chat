@@ -45,7 +45,7 @@
                 font-style: italic;
             }
 
-            &:hover {
+            &:hover:active {
                 background-color: #2c333e;
             }
         }

@@ -18,5 +18,6 @@ export function resetMenuContainer() {
 }
 
 export function hideDrawer() {
+    document.querySelector(".main .message-container .messages").innerHTML = "";
     document.querySelector(".main").classList.remove("drawer-open");
 }
