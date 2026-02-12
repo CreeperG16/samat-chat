@@ -7,7 +7,7 @@ import { addDMEvents, fetchDMs, renderDMCards, renderMessagesMenu } from "./page
 import { addChannelEvents, fetchChannels, renderChannelCards, renderChannelsMenu } from "./pages/channels.js";
 import { addFriendsEvents, fetchFriends, renderFriends, renderFriendsMenu } from "./pages/friends.js";
 import { addProfileEvents, renderProfile, renderProfileMenu } from "./pages/profile.js";
-import { renderChatView } from "./pages/chat-view.js";
+import { addChatViewEvents, renderChatView, renderMessages } from "./pages/chat-view.js";
 
 const OFFLINE_DEV = false;
 
@@ -132,6 +132,14 @@ async function main() {
     const profileMenu = renderProfile();
     addProfileEvents(profileMenu);
 
+    addChatViewEvents();
+
+    // TODO: move this realtime code somewhere else (organisation)
+    // REALLY JANK SYSTEM - SOLIDIFY ASAP!
+    // HASTILY PUT TOGETHER
+    // JUST TO FINALLY SEE MESSAGES IN THE MESSAGE APP
+    // along with /script/pages/chat-view.js
+    // and /script/session.js channelCache code
     supabase.realtime.setAuth(session.get().session.access_token);
 
     for (const chat of [...conversations, ...channels]) {
@@ -146,9 +154,6 @@ async function main() {
             oldestMessageAt: null,
         });
 
-        // [null,null,"realtime:chat:a6c7f2d5-8376-46b5-a948-0b786736a2cc","broadcast",{"event":"message-delete","meta":{"id":"9fb15cc6-8d14-41ee-984b-fafc4faa4191"},"payload":{"id": "9fb15cc6-8d14-41ee-984b-fafc4faa4191", "message": {"id": "b1313a21-2f09-4bb3-9f67-257236496543", "chat_id": "a6c7f2d5-8376-46b5-a948-0b786736a2cc"}},"type":"broadcast"}]
-        // [null,null,"realtime:chat:a6c7f2d5-8376-46b5-a948-0b786736a2cc","broadcast",{"event":"message-create","meta":{"id":"1df7a773-20f8-424b-b24e-328732c155e7"},"payload":{"id": "1df7a773-20f8-424b-b24e-328732c155e7", "message": {"id": "b1313a21-2f09-4bb3-9f67-257236496543", "author": {"id": "fea87db4-0002-4336-aa28-8cafd312bad3", "username": "samat", "profile_image": "https://www.samat.hu/images/favicon.png"}, "chat_id": "a6c7f2d5-8376-46b5-a948-0b786736a2cc", "content": "aaaaaaamessage inaa chat", "created_at": "2026-02-12T15:36:49.501178+00:00"}},"type":"broadcast"}]
-
         const handleMsgEvent = ({ event, payload }) => {
             const { chat_id } = payload.message;
             const channelCacheEntry = channelCache.get(chat_id);
@@ -158,14 +163,24 @@ async function main() {
                 return;
             }
 
+            const isInChatScreen = location.pathname.match(/\/chat\/(?<chatid>[^\/]+)/);
+            const currOpenChatId = isInChatScreen?.groups?.chatid;
+
             if (event === "message-delete") {
-                removeMsgsFromCache(payload.message);
-                // TODO: event to UI?
+                removeMsgsFromCache(chat_id, payload.message);
+                if (isInChatScreen && currOpenChatId === chat_id) {
+                    const msgElement = document.querySelector(`.message[data-messageid="${payload.message.id}"]`);
+                    if (msgElement) msgElement.remove();
+                }
+
                 return;
             }
 
             // message-create
-            addMsgsToCache(payload.message);
+            addMsgsToCache(chat_id, payload.message);
+            if (isInChatScreen && currOpenChatId === chat_id) {
+                renderMessages(channelCacheEntry.messages);
+            }
         }
 
         realtimeChannel
@@ -175,8 +190,6 @@ async function main() {
 
         channelMap.set(chat.id, realtimeChannel);
     }
-
-    // console.log(channelMap);
 
     initRouter({
         "/": renderMessagesMenu,
@@ -190,7 +203,6 @@ async function main() {
     const redirect = sessionStorage.getItem("redirect");
     if (redirect) {
         sessionStorage.removeItem("redirect");
-        // console.log("Redirected to", redirect);
         navigate(redirect);
     }
 }

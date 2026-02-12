@@ -23,10 +23,11 @@ export const session = {
     setProfile: (p) => (currentSession.profile = p),
 };
 
-// TODO: THIS IS VERY FLAKY
+// TODO: THIS IS VERY JANK - SOLIDIFY ASAP!
 // HASTILY PUT TOGETHER
 // JUST TO FINALLY SEE MESSAGES IN THE MESSAGE APP
 // along with /script/pages/chat-view.js
+// and realtime channel code in /script/main.js main()
 
 /**
  * @typedef {{
@@ -57,15 +58,11 @@ function updateCacheMessages(cacheEntry) {
 }
 
 export function addMsgsToCache(chatId, ...messages) {
-    // console.log("ADDING", chatId, messages, channelCache);
-
     const channelCacheEntry = channelCache.get(chatId);
     if (!channelCacheEntry) {
         // TODO: ?
         return false;
     }
-
-    // console.log("Actually adding now...", channelCacheEntry);
     
     channelCacheEntry.messages.push(...messages);
     updateCacheMessages(channelCacheEntry);
@@ -75,8 +72,7 @@ export function removeMsgsFromCache(chatId, ...messages) {
     const channelCacheEntry = channelCache.get(chatId);
     if (!channelCacheEntry) {
         // TODO: ?
-        // return false;
-        
+        return false;
     }
 
     channelCacheEntry.messages = channelCacheEntry.messages.filter(

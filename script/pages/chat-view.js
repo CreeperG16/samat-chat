@@ -3,10 +3,11 @@ import { showError } from "../misc.js";
 import { addMsgsToCache, channelCache, session } from "../session.js";
 import { supabase } from "../supabase.js";
 
-// TODO: THIS IS VERY FLAKY
+// TODO: THIS IS VERY JANK - SOLIDIFY ASAP!
 // HASTILY PUT TOGETHER
 // JUST TO FINALLY SEE MESSAGES IN THE MESSAGE APP
 // along with /script/session.js channelCache code
+// and realtime channel code in /script/main.js main()
 
 /** @type {HTMLTemplateElement} */
 const messageTemplate = document.querySelector("#message-template");
@@ -42,7 +43,7 @@ function renderMessage(msg) {
     messagePanel.prepend(clone);
 }
 
-function renderMessages(messages) {
+export function renderMessages(messages) {
     messagePanel.innerHTML = "";
 
     let previousMessageTime = null;
@@ -82,22 +83,49 @@ async function fetchMessages(chatId) {
     addMsgsToCache(chatId, ...messages);
 }
 
+async function sendMessage(chat_id, content) {
+    const { data, error } = await supabase.from("messages").insert({ content, chat_id });
+
+    if (error) {
+        showError("chat-view.js / sendMessage() / insert into messages", error);
+        return { success: false, data: error };
+    }
+
+    return { success: true, data };
+}
+
+export function addChatViewEvents() {
+    /** @type {HTMLDivElement} */
+    const chatfield = document.querySelector(".chat-field");
+    chatfield.addEventListener("keypress", (ev) => {
+        const isInChatScreen = location.pathname.match(/\/chat\/(?<chatid>[^\/]+)/);
+        const currOpenChatId = isInChatScreen?.groups?.chatid;
+        if (!isInChatScreen) return;
+
+        if (ev.key === "Enter" && !ev.shiftKey) {
+            const message = ev.target.innerText.trim();
+            if (!message) return;
+    
+            ev.preventDefault();
+            ev.target.innerHTML = "";
+
+            sendMessage(currOpenChatId, message);
+        }
+    });
+}
+
 export function renderChatView({ chat_id }) {
-    // TODO
     const mainPanel = document.querySelector(".main");
     const messageContainer = mainPanel.querySelector(".container.message-container");
 
     messageContainer.classList.remove("hidden");
     mainPanel.classList.add("drawer-open");
 
-    // console.log("CHAT VIEW!!! chat id is", chat_id);
     const cacheEntry = channelCache.get(chat_id);
-    // console.log(cacheEntry);
     if (!cacheEntry || cacheEntry.messages.length < 25) {
         // Fetch messages and then render
         fetchMessages(chat_id).then(() => {
             const newEntry = channelCache.get(chat_id);
-            // console.log(channelCache, newEntry);
             renderMessages(newEntry.messages);
         });
     } else {
