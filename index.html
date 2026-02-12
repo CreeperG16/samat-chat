@@ -4,19 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content">
     <title>samat chat</title>
-    <link rel="icon" type="image/png" href="./images/favicon.png">
+    <link rel="icon" type="image/png" href="/images/favicon.png">
+    <base href="/">
     
     <!-- Styles -->
-    <link rel="stylesheet" href="./style/global.css">
-    <link rel="stylesheet" href="./style/style.css">
-    <link rel="stylesheet" href="./style/nav.css">
+    <link rel="stylesheet" href="/style/global.css">
+    <link rel="stylesheet" href="/style/style.css">
+    <link rel="stylesheet" href="/style/nav.css">
     
     <!-- Different pages -->
-    <link rel="stylesheet" href="./style/pages/messages.css">
-    <link rel="stylesheet" href="./style/pages/channels.css">
-    <link rel="stylesheet" href="./style/pages/friends.css">
-    <link rel="stylesheet" href="./style/pages/profile.css">
-    <link rel="stylesheet" href="./style/pages/not-found.css">
+    <link rel="stylesheet" href="/style/pages/messages.css">
+    <link rel="stylesheet" href="/style/pages/channels.css">
+    <link rel="stylesheet" href="/style/pages/friends.css">
+    <link rel="stylesheet" href="/style/pages/profile.css">
+    <link rel="stylesheet" href="/style/pages/not-found.css">
     
     <script type="importmap">
         { "imports": { "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js" } }
@@ -26,7 +27,7 @@
     <div id="content">
         <div class="nav">
             <a data-link href="/">
-                <div class="nav-item messages selected">
+                <div class="nav-item messages">
                     <img src="images/favicon.png" alt="messages">
                     <p>Messages</p>
                 </div>
@@ -53,7 +54,7 @@
 
         <div class="menu-container">
             <!-- Messages selector -->
-            <div class="menu messages-menu">
+            <div class="menu messages-menu hidden">
                 <template id="message-card">
                     <div class="message-card">
                         <div class="img-container">
@@ -151,7 +152,7 @@
         </div>
         <!-- Main content, e.g. messages -->
         <div class="main">
-            <div class="container message-container">
+            <div class="container message-container hidden">
                 <div class="header">
                     <button class="back-btn"><</button>
                     <p class="chat-name"></p>
@@ -204,6 +205,6 @@
         <button onclick="this.parentElement.classList.remove('has-err')">X</button>
     </div>
 
-    <script type="module" src="./script/main.js"></script>
+    <script type="module" src="/script/main.js"></script>
 </body>
 </html>

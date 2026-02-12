@@ -1,5 +1,6 @@
 import { GENERIC_USER } from "../constants.js";
 import { showError } from "../misc.js";
+import { hideDrawer, resetMenuContainer, selectNavItem } from "../nav.js";
 import { session } from "../session.js";
 import { supabase } from "../supabase.js";
 
@@ -103,3 +104,12 @@ export function renderFriends(friends) {
 
 /** @param {HTMLDivElement} friendsMenu */
 export function addFriendsEvents(friendsMenu) {}
+
+export function renderFriendsMenu() {
+    resetMenuContainer();
+    hideDrawer();
+    selectNavItem("friends");
+    
+    const menu = document.querySelector(".menu.friends-menu");
+    menu.classList.remove("hidden");
+}

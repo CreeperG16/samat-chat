@@ -1,6 +1,7 @@
 import { session } from "../session.js";
 import { showConfirmDialog, showError } from "../misc.js";
 import { supabase } from "../supabase.js";
+import { hideDrawer, resetMenuContainer, selectNavItem } from "../nav.js";
 
 /** @returns {HTMLDivElement} */
 export function renderProfile() {
@@ -92,4 +93,13 @@ export function addProfileEvents(profileMenu) {
             // TODO
         });
     }
+}
+
+export function renderProfileMenu() {
+    resetMenuContainer();
+    hideDrawer();
+    selectNavItem("profile");
+    
+    const menu = document.querySelector(".menu.profile-menu");
+    menu.classList.remove("hidden");
 }

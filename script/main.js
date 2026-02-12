@@ -2,19 +2,14 @@ import { GENERIC_USER } from "./constants.js";
 import { supabase } from "./supabase.js";
 import { showError } from "./misc.js";
 import { session } from "./session.js";
-import { addDMEvents, fetchDMs, renderDMCards } from "./pages/messages.js";
-import { addChannelEvents, fetchChannels, renderChannelCards } from "./pages/channels.js";
-import { addFriendsEvents, fetchFriends, renderFriends } from "./pages/friends.js";
-import { addProfileEvents, renderProfile } from "./pages/profile.js";
 import { initRouter, navigate } from "./router.js";
+import { addDMEvents, fetchDMs, renderDMCards, renderMessagesMenu } from "./pages/messages.js";
+import { addChannelEvents, fetchChannels, renderChannelCards, renderChannelsMenu } from "./pages/channels.js";
+import { addFriendsEvents, fetchFriends, renderFriends, renderFriendsMenu } from "./pages/friends.js";
+import { addProfileEvents, renderProfile, renderProfileMenu } from "./pages/profile.js";
+import { renderChatView } from "./pages/chat-view.js";
 
 const OFFLINE_DEV = false;
-
-const redirect = sessionStorage.getItem("redirect");
-if (redirect) {
-    sessionStorage.removeItem("redirect");
-    navigate(redirect);
-}
 
 // Check if logged in, and set current session object if so
 async function isLoggedIn() {
@@ -103,7 +98,8 @@ function updateProfileImage() {
 function enableBackButton() {
     const main = document.querySelector(".main");
     main.querySelector(".message-container .header .back-btn").addEventListener("click", () =>
-        main.classList.remove("drawer-open")
+        // main.classList.remove("drawer-open")
+        navigate("/")
     );
 }
 
@@ -111,7 +107,21 @@ async function main() {
     const loggedIn = await isLoggedIn();
     if (!loggedIn) return;
 
-    initRouter();
+    initRouter({
+        "/": renderMessagesMenu,
+        "/channels": renderChannelsMenu,
+        "/friends": renderFriendsMenu,
+        "/profile": renderProfileMenu,
+
+        "/chat/:chat_id": renderChatView,
+    });
+
+    const redirect = sessionStorage.getItem("redirect");
+    if (redirect) {
+        sessionStorage.removeItem("redirect");
+        // console.log("Redirected to", redirect);
+        navigate(redirect);
+    }
 
     updateProfileImage();
     enableBackButton();

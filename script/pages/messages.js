@@ -1,5 +1,7 @@
 import { GENERIC_USER } from "../constants.js";
 import { showError } from "../misc.js";
+import { hideDrawer, resetMenuContainer, selectNavItem } from "../nav.js";
+import { navigate } from "../router.js";
 import { session } from "../session.js";
 import { supabase } from "../supabase.js";
 
@@ -80,7 +82,7 @@ export function addDMEvents(messagesMenu) {
 
     /** @param {PointerEvent} ev */
     const onMessageCardClick = (ev) => {
-        const chatId = ev.target.dataset.id;
+        const chatId = ev.currentTarget.dataset.id;
         // messageContainer.innerHTML = chatId
 
         // TODO:
@@ -88,10 +90,20 @@ export function addDMEvents(messagesMenu) {
         // 2. Get cached messages
         // On cache miss: 3. fetch messages from db
 
-        mainPanel.classList.add("drawer-open");
+        // mainPanel.classList.add("drawer-open");
+        navigate(`/chat/${chatId}`);
     };
 
     document
         .querySelectorAll(".messages-menu .message-card")
         .forEach((c) => c.addEventListener("click", onMessageCardClick));
+}
+
+export function renderMessagesMenu() {
+    resetMenuContainer();
+    hideDrawer();
+    selectNavItem("messages");
+
+    const menu = document.querySelector(".menu.messages-menu");
+    menu.classList.remove("hidden");
 }

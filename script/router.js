@@ -1,11 +1,6 @@
-// WIP - more complex, not hardcoded routes later
-const ROUTES = {
-    "/": "messages",
-    "/channels": "channels",
-    "/friends": "friends",
-    "/profile": "profile",
-    // "/404": "not-found",
-};
+import { renderNotFoundPage } from "./pages/not-found.js";
+
+const routes = [];
 
 export function navigate(path) {
     history.pushState({}, "", path);
@@ -13,20 +8,36 @@ export function navigate(path) {
 }
 
 function render(path) {
-    document.querySelectorAll(".nav-item.selected").forEach((s) => s.classList.remove("selected"));
-    document.querySelectorAll(".menu").forEach((m) => m.classList.add("hidden"));
+    // console.log("Attempting to render", path);
 
-    const page = ROUTES[path];
-    if (page) {
-        document.querySelector(`.nav-item.${page}`).classList.add("selected");
-        document.querySelector(`.${page}-menu`).classList.remove("hidden");
-    } else {
-        history.replaceState({}, "", "/404");
-        document.querySelector(`.not-found-menu`).classList.remove("hidden");
+    let handled = false;
+    for (const route of routes) {
+        const result = route.pattern.exec(path);
+        // console.log("Tested '%s' for route '%o', result is '%o'", path, route.pattern, result);
+        if (!result) continue;
+
+        // console.log(result, route);
+        route.handler(result.groups);
+        handled = true;
+        break;
     }
+
+    if (handled) return;
+    console.log("No route matched '%s', rendering 404 page", path);
+    history.replaceState({}, "", "/404");
+    renderNotFoundPage();
 }
 
-export function initRouter() {
+export function initRouter(initRoutes) {
+    for (const [route, handler] of Object.entries(initRoutes)) {
+        // This makes a regex pattern for :params in the route
+        // Makes named capturing groups in the pattern
+        const pattern = new RegExp(`^${route.replace(/:([^\/]+)/g, (_, s) => `(?<${s}>.+)`)}$`);
+
+        routes.push({ pattern, handler });
+    }
+
+    // TODO: generalise this
     document.querySelectorAll("[data-link]").forEach((n) =>
         n.addEventListener("click", (e) => {
             e.preventDefault();

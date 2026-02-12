@@ -1,4 +1,5 @@
 import { showError } from "../misc.js";
+import { hideDrawer, resetMenuContainer, selectNavItem } from "../nav.js";
 import { supabase } from "../supabase.js";
 
 export async function fetchChannels() {
@@ -43,3 +44,12 @@ export function renderChannelCards(channels) {
 
 /** @param {HTMLDivElement} channelsMenu */
 export function addChannelEvents(channelsMenu) {}
+
+export function renderChannelsMenu() {
+    resetMenuContainer();
+    hideDrawer();
+    selectNavItem("channels");
+    
+    const menu = document.querySelector(".menu.channels-menu");
+    menu.classList.remove("hidden");
+}
