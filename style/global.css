@@ -18,6 +18,11 @@ button {
     display: none !important;
 }
 
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
 #confirm-dialog {
     opacity: 0;
     pointer-events: none;

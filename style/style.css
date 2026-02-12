@@ -12,7 +12,7 @@
     display: none;
 }
 
-.message {
+.main .message-container .message {
     margin: .4em 1em;
     display: flex;
     flex-direction: row;

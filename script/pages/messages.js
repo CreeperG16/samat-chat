@@ -83,6 +83,11 @@ export function addDMEvents(messagesMenu) {
         const chatId = ev.target.dataset.id;
         // messageContainer.innerHTML = chatId
 
+        // TODO:
+        // On page init all realtime sockets should already be subscribed to?
+        // 2. Get cached messages
+        // On cache miss: 3. fetch messages from db
+
         mainPanel.classList.add("drawer-open");
     };
 

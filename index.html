@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content">
     <title>samat chat</title>
     <link rel="icon" type="image/png" href="./images/favicon.png">
     
@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="./style/pages/channels.css">
     <link rel="stylesheet" href="./style/pages/friends.css">
     <link rel="stylesheet" href="./style/pages/profile.css">
+    <link rel="stylesheet" href="./style/pages/not-found.css">
     
     <script type="importmap">
         { "imports": { "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js" } }
@@ -24,24 +25,30 @@
 <body>
     <div id="content">
         <div class="nav">
-            <div class="nav-item messages selected">
-                <!-- MESSAGES ICON -->
-                <img src="images/favicon.png" alt="messages">
-                <p>Messages</p>
-            </div>
-            <div class="nav-item channels">
-                <img src="images/favicon.png" alt="messages">
-                <p>Channels</p>
-            </div>
-            <div class="nav-item friends">
-                <img src="images/user.svg" alt="messages">
-                <p>Friends</p>
-            </div>
-            <div class="nav-item profile">
-                <img src="images/user.svg" alt="messages">
-                <p>Profile</p>
-            </div>
-
+            <a data-link href="/">
+                <div class="nav-item messages selected">
+                    <img src="images/favicon.png" alt="messages">
+                    <p>Messages</p>
+                </div>
+            </a>
+            <a data-link href="/channels">
+                <div class="nav-item channels">
+                    <img src="images/favicon.png" alt="messages">
+                    <p>Channels</p>
+                </div>
+            </a>
+            <a data-link href="/friends">
+                <div class="nav-item friends">
+                    <img src="images/user.svg" alt="messages">
+                    <p>Friends</p>
+                </div>
+            </a>
+            <a data-link href="/profile">
+                <div class="nav-item profile">
+                    <img src="images/user.svg" alt="messages">
+                    <p>Profile</p>
+                </div>
+            </a>
         </div>
 
         <div class="menu-container">
@@ -134,6 +141,12 @@
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <!-- 404 page -->
+            <div class="menu not-found-menu hidden">
+                <h1>Page not found</h1>
+                <p>You've managed to find a nonexistent page. Congrats!</p>
             </div>
         </div>
         <!-- Main content, e.g. messages -->

@@ -10,3 +10,13 @@ export const session = {
     setUser: (u) => (currentSession.user = u),
     setProfile: (p) => (currentSession.profile = p),
 }
+
+/**
+ * @type {Map<string, {
+ *  messages: any[];
+ *  lastMessageAt: Date;
+ *  oldestMessageAt: Date;
+ *  lastFetchedAt: Date;
+ * }>}
+ */
+export const channelCache = new Map();

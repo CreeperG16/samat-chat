@@ -6,32 +6,15 @@ import { addDMEvents, fetchDMs, renderDMCards } from "./pages/messages.js";
 import { addChannelEvents, fetchChannels, renderChannelCards } from "./pages/channels.js";
 import { addFriendsEvents, fetchFriends, renderFriends } from "./pages/friends.js";
 import { addProfileEvents, renderProfile } from "./pages/profile.js";
+import { initRouter, navigate } from "./router.js";
 
 const OFFLINE_DEV = false;
 
-// Navbar code
-document.querySelectorAll(".nav-item").forEach((navItem) => {
-    navItem.addEventListener("click", () => {
-        try {
-            if (navItem.classList.contains("selected")) return;
-            document.querySelector(".nav-item.selected").classList.remove("selected");
-            navItem.classList.add("selected");
-
-            document.querySelectorAll(".menu").forEach((m) => m.classList.add("hidden"));
-            if (navItem.classList.contains("messages")) {
-                document.querySelector(".messages-menu").classList.remove("hidden");
-            } else if (navItem.classList.contains("channels")) {
-                document.querySelector(".channels-menu").classList.remove("hidden");
-            } else if (navItem.classList.contains("friends")) {
-                document.querySelector(".friends-menu").classList.remove("hidden");
-            } else if (navItem.classList.contains("profile")) {
-                document.querySelector(".profile-menu").classList.remove("hidden");
-            }
-        } catch (e) {
-            showError(".nav-item.on('click')", e);
-        }
-    });
-});
+const redirect = sessionStorage.getItem("redirect");
+if (redirect) {
+    sessionStorage.removeItem("redirect");
+    navigate(redirect);
+}
 
 // Check if logged in, and set current session object if so
 async function isLoggedIn() {
@@ -128,8 +111,16 @@ async function main() {
     const loggedIn = await isLoggedIn();
     if (!loggedIn) return;
 
+    initRouter();
+
     updateProfileImage();
     enableBackButton();
+
+    if (OFFLINE_DEV) {
+        const profileMenu = renderProfile();
+        addProfileEvents(profileMenu);
+        return;
+    }
 
     const [conversations, channels, friends] = await Promise.all([fetchDMs(), fetchChannels(), fetchFriends()]);
 

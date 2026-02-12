@@ -1,5 +1,6 @@
 import { session } from "../session.js";
 import { showConfirmDialog, showError } from "../misc.js";
+import { supabase } from "../supabase.js";
 
 /** @returns {HTMLDivElement} */
 export function renderProfile() {
