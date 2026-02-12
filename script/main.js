@@ -92,7 +92,7 @@ async function isLoggedIn() {
 function updateProfileImage() {
     /** @type {HTMLImageElement} */
     const profileIcon = document.querySelector(".nav-item.profile img");
-    profileIcon.src = session.get().profile.profile_image;
+    profileIcon.src = session.get().profile.profile_image ?? GENERIC_USER;
 }
 
 function enableBackButton() {

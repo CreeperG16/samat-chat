@@ -2,6 +2,7 @@ import { session } from "../session.js";
 import { showConfirmDialog, showError } from "../misc.js";
 import { supabase } from "../supabase.js";
 import { hideDrawer, resetMenuContainer, selectNavItem } from "../nav.js";
+import { GENERIC_USER } from "../constants.js";
 
 /** @returns {HTMLDivElement} */
 export function renderProfile() {
