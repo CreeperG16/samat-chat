@@ -44,6 +44,14 @@
             &.selected {
                 background-color: #3c4656;
             }
+
+            &:is(.messages, .channels) img {
+                filter: invert();
+            }
+
+            &.friends img {
+                filter: brightness(5);
+            }
         }
     }
 }

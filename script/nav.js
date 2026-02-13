@@ -1,3 +1,5 @@
+import { session } from "./session.js";
+
 // TODO: clean this functionality up
 // Move it somewhere better?
 // not sure yet where it would fit
@@ -21,3 +23,11 @@ export function hideDrawer() {
     document.querySelector(".main .message-container .messages").innerHTML = "";
     document.querySelector(".main").classList.remove("drawer-open");
 }
+
+// Updates the profile picture in the navbar
+export function updateProfileImage() {
+    /** @type {HTMLImageElement} */
+    const profileIcon = document.querySelector(".nav-item.profile img");
+    profileIcon.src = session.get().profile.profile_image ?? GENERIC_USER;
+}
+
