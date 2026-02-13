@@ -43,13 +43,17 @@ function renderMessage(msg) {
     messagePanel.prepend(clone);
 }
 
+/** @param {Date} d1 @param {Date} d2 */
+const isSameDate = (d1, d2) =>
+    d1.getDate() === d2.getDate() && d1.getMonth() === d2.getMonth() && d1.getFullYear() === d2.getFullYear();
+
 export function renderMessages(messages) {
     messagePanel.innerHTML = "";
 
     let previousMessageTime = null;
     for (const msg of messages) {
         const currentMessageTime = new Date(msg.created_at);
-        if (!previousMessageTime || previousMessageTime.getDate() !== currentMessageTime.getDate())
+        if (!previousMessageTime || !isSameDate(previousMessageTime, currentMessageTime))
             renderMessageDivider(currentMessageTime.toDateString());
 
         previousMessageTime = currentMessageTime;
@@ -68,7 +72,7 @@ async function fetchMessages(chatId) {
         .from("messages")
         .select("*, author:profiles(*)")
         .eq("chat_id", chatId)
-        .gt("created_at", (channelCacheEntry.latestMessageAt ?? new Date(0)).toISOString())
+        // .gt("created_at", (channelCacheEntry.latestMessageAt ?? new Date(0)).toISOString())
         .order("created_at", { ascending: false })
         .limit(25); // latest 25 messages (will be reordered client side too)
 
