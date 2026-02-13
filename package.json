@@ -6,6 +6,7 @@
     "repository": "https://github.com/CreeperG16/samat-chat.git",
     "author": "Tamás Papp <pappt1216@gmail.com>",
     "devDependencies": {
+        "@postgres-language-server/cli": "^0.21.0",
         "@supabase/supabase-js": "^2.89.0"
     }
 }
