@@ -16,10 +16,6 @@
             &[data-count]::after {
                 content: " - " attr(data-count);
             }
-
-            &:hover {
-                background-color: #2c333e;
-            }
         }
         
         .section {

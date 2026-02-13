@@ -1,3 +1,4 @@
+import { GENERIC_USER } from "./constants.js";
 import { session } from "./session.js";
 
 // TODO: clean this functionality up
