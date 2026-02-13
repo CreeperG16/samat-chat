@@ -39,3 +39,10 @@ export function showConfirmDialog(message, onConfirm, onCancel = () => {}) {
     confirmDialog.querySelectorAll(".actions button").forEach((b) => b.addEventListener("click", btnClickCallback));
     confirmDialog.classList.add("show");
 }
+
+/** @returns {string | null} */
+export function currentChat() {
+    const isInChatScreen = location.pathname.match(/\/chat\/(?<chat_id>[^\/]+)/);
+    const currOpenChatId = isInChatScreen?.groups?.chat_id;
+    return currOpenChatId ?? null;
+}

@@ -1,13 +1,12 @@
 import { GENERIC_USER } from "../constants.js";
-import { showError } from "../misc.js";
-import { addMsgsToCache, channelCache, session } from "../session.js";
+import { currentChat, showError } from "../misc.js";
+import { channelCache, session } from "../session.js";
 import { supabase } from "../supabase.js";
 
 // TODO: THIS IS VERY JANK - SOLIDIFY ASAP!
 // HASTILY PUT TOGETHER
 // JUST TO FINALLY SEE MESSAGES IN THE MESSAGE APP
 // along with /script/session.js channelCache code
-// and realtime channel code in /script/main.js main()
 
 /** @type {HTMLTemplateElement} */
 const messageTemplate = document.querySelector("#message-template");
@@ -84,7 +83,7 @@ async function fetchMessages(chatId) {
     channelCacheEntry.lastFetchedAt = new Date();
     if (messages.length === 0) return;
 
-    addMsgsToCache(chatId, ...messages);
+    channelCache.addMessages(chatId, ...messages);
 }
 
 async function sendMessage(chat_id, content) {
@@ -102,18 +101,17 @@ export function addChatViewEvents() {
     /** @type {HTMLDivElement} */
     const chatfield = document.querySelector(".chat-field");
     chatfield.addEventListener("keypress", (ev) => {
-        const isInChatScreen = location.pathname.match(/\/chat\/(?<chatid>[^\/]+)/);
-        const currOpenChatId = isInChatScreen?.groups?.chatid;
-        if (!isInChatScreen) return;
+        const currentChatId = currentChat();
+        if (!currentChatId) return;
 
         if (ev.key === "Enter" && !ev.shiftKey) {
             const message = ev.target.innerText.trim();
             if (!message) return;
-    
+
             ev.preventDefault();
             ev.target.innerHTML = "";
 
-            sendMessage(currOpenChatId, message);
+            sendMessage(currentChatId, message);
         }
     });
 }
@@ -126,7 +124,7 @@ export function renderChatView({ chat_id }) {
     mainPanel.classList.add("drawer-open");
 
     const cacheEntry = channelCache.get(chat_id);
-    if (!cacheEntry || cacheEntry.messages.length < 25) {
+    if (!cacheEntry || cacheEntry.lastFetchedAt === null) {
         // Fetch messages and then render
         fetchMessages(chat_id).then(() => {
             const newEntry = channelCache.get(chat_id);

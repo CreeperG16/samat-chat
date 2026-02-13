@@ -2,7 +2,7 @@ import { GENERIC_USER } from "../constants.js";
 import { showError } from "../misc.js";
 import { hideDrawer, resetMenuContainer, selectNavItem } from "../nav.js";
 import { navigate } from "../router.js";
-import { session } from "../session.js";
+import { channelCache, session } from "../session.js";
 import { supabase } from "../supabase.js";
 
 export async function fetchDMs() {
@@ -11,7 +11,7 @@ export async function fetchDMs() {
         .select(
             `*,
             chat_members(profiles(*)),
-            messages(*)`
+            messages(*, author:profiles(*))`
         )
         .in("type", ["direct", "group"])
         .order("created_at", { referencedTable: "messages", ascending: false })
@@ -23,74 +23,85 @@ export async function fetchDMs() {
         return;
     }
 
-    return data;
+    // TODO: uhmmm just make this better. it ugly :c
+    for (const chat of data) {
+        channelCache.addChannel({
+            id: chat.id,
+            name: chat.name,
+            private: chat.private,
+            type: chat.type,
+            updated_at: chat.updated_at,
+            chat_members: chat.chat_members,
+        });
+
+        channelCache.addMessages(chat.id, ...chat.messages);
+    }
 }
 
-/** @param {Chat[]} conversations @returns {HTMLDivElement} */
-export function renderDMCards(conversations) {
+/** Renders DM cards from cache @returns {HTMLDivElement} */
+export function renderDMCards() {
     /** @type {HTMLTemplateElement} */
     const template = document.querySelector("#message-card");
     const messagesMenu = document.querySelector(".messages-menu");
 
-    try {
-        for (const conversation of conversations) {
-            const clone = document.importNode(template.content, true);
+    messagesMenu.querySelectorAll(".message-card").forEach(m => m.remove());
 
-            /** @type {HTMLImageElement} */
-            const contactImage = clone.querySelector(".img-container img");
-            const contactName = clone.querySelector(".contact-name");
-            const messagePeek = clone.querySelector(".message-peek");
-            const cardDiv = clone.querySelector(".message-card");
+    const cacheEntries = channelCache.getAll().sort((a, b) => b.updatedAt - a.updatedAt);
+    for (const { details, messages } of cacheEntries) {
+        if (details.type !== "direct" && details.type !== "group") continue;
 
-            // TODO
-            if (conversation.type === "direct") {
-                const otherUser = conversation.chat_members.find((x) => x.profiles.id !== session.get().user.id);
-                contactImage.src = otherUser.profiles.profile_image ?? GENERIC_USER;
-                contactName.appendChild(document.createTextNode(otherUser.profiles.username));
-            } else if (conversation.type === "group") {
-                // TODO - group and icon
-                contactImage.src = GENERIC_USER;
-                contactName.appendChild(document.createTextNode(conversation.name));
-            }
+        const clone = document.importNode(template.content, true);
 
-            if (conversation.messages.length > 0) {
-                messagePeek.appendChild(document.createTextNode(conversation.messages[0].content));
-            } else {
-                messagePeek.innerHTML = "No messages yet";
-                messagePeek.classList.add("no-messages");
-            }
+        /** @type {HTMLImageElement} */
+        const contactImage = clone.querySelector(".img-container img");
+        const contactName = clone.querySelector(".contact-name");
+        const messagePeek = clone.querySelector(".message-peek");
+        const cardDiv = clone.querySelector(".message-card");
 
-            cardDiv.dataset.id = conversation.id;
-
-            messagesMenu.appendChild(clone);
+        // TODO
+        if (details.type === "direct") {
+            const otherUser = details.chat_members.find((x) => x.profiles.id !== session.get().user.id);
+            contactImage.src = otherUser.profiles.profile_image ?? GENERIC_USER;
+            contactName.appendChild(document.createTextNode(otherUser.profiles.username));
+        } else if (details.type === "group") {
+            // TODO - group and icon
+            contactImage.src = GENERIC_USER;
+            contactName.appendChild(document.createTextNode(details.name));
         }
-    } catch (e) {
-        showError("renderDMCards()", e);
+
+        if (messages.length === 0) {
+            messagePeek.innerHTML = "No messages yet";
+            messagePeek.classList.add("no-messages");
+        } else {
+            const lastMsg = messages.at(-1);
+            if (lastMsg.author.id === session.get().user.id) {
+                messagePeek.appendChild(document.createTextNode("You: " + lastMsg.content));
+            } else {
+                messagePeek.appendChild(document.createTextNode(lastMsg.content));
+            }
+        }
+
+        cardDiv.dataset.id = details.id;
+
+        messagesMenu.appendChild(clone);
     }
+
+    addDMEvents();
 
     return messagesMenu;
 }
 
-/** @param {HTMLDivElement} messagesMenu */
-export function addDMEvents(messagesMenu) {
+function addDMEvents() {
     /** @type {HTMLDivElement} */
     const mainPanel = document.querySelector(".main");
     const messageContainer = mainPanel.querySelector(".message-container");
 
-    mainPanel.querySelectorAll(".container").forEach(x => x.classList.add("hidden"));
-    messageContainer.classList.remove("hidden");
-
     /** @param {PointerEvent} ev */
     const onMessageCardClick = (ev) => {
+        mainPanel.querySelectorAll(".container").forEach((x) => x.classList.add("hidden"));
+        messageContainer.classList.remove("hidden");
+
         const chatId = ev.currentTarget.dataset.id;
-        // messageContainer.innerHTML = chatId
-
-        // TODO:
-        // On page init all realtime sockets should already be subscribed to?
-        // 2. Get cached messages
-        // On cache miss: 3. fetch messages from db
-
-        // mainPanel.classList.add("drawer-open");
         navigate(`/chat/${chatId}`);
     };
 

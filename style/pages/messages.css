@@ -20,6 +20,7 @@
             .img-container {
                 width: 4em;
                 height: 4em;
+                flex: 0 0 auto;
                 overflow: hidden;
                 border-radius: 50%;
                 background-color: #252c36;
@@ -34,10 +35,17 @@
                 flex-direction: column;
                 justify-content: center;
                 gap: .3em;
+                width: calc(100% - 5em);
             }
 
             .details .contact-name {
                 font-weight: 900;
+            }
+
+            .details .message-peek {
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
             }
 
             .details .message-peek.no-messages {
