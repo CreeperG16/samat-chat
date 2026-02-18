@@ -1,6 +1,7 @@
 import { channelCache, initSession, subscribeToChat } from "./session.js";
 import { initRouter, navigate } from "./router.js";
 import { updateProfileImage } from "./nav.js";
+
 import { fetchDMs, renderDMCards, renderMessagesMenu } from "./pages/messages.js";
 import { fetchChannels, renderChannelCards, renderChannelsMenu } from "./pages/channels.js";
 import { addFriendsEvents, fetchFriends, renderFriends, renderFriendsMenu } from "./pages/friends.js";

@@ -62,7 +62,7 @@ export function renderDMCards() {
         if (details.type === "direct") {
             const otherUser = details.chat_members.find((x) => x.profiles.id !== session.get().user.id);
             contactImage.src = otherUser.profiles.profile_image ?? GENERIC_USER;
-            contactName.appendChild(document.createTextNode(otherUser.profiles.username));
+            contactName.appendChild(document.createTextNode(otherUser.profiles.display_name));
         } else if (details.type === "group") {
             // TODO - group and icon
             contactImage.src = GENERIC_USER;

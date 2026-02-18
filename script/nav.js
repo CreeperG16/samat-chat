@@ -31,4 +31,3 @@ export function updateProfileImage() {
     const profileIcon = document.querySelector(".nav-item.profile img");
     profileIcon.src = session.get().profile.profile_image ?? GENERIC_USER;
 }
-
