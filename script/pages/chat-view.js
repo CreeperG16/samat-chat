@@ -62,7 +62,7 @@ export function renderMessages(messages) {
 
 async function fetchMessages(chatId) {
     const channelCacheEntry = channelCache.get(chatId);
-    if (!chatId) {
+    if (!channelCacheEntry) {
         showError("chat-view.js / fetchMessages(chatId) / channelCache().get(chatId)", "Channel not cached???");
         return;
     }

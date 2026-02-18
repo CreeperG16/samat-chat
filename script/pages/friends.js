@@ -1,6 +1,7 @@
 import { GENERIC_USER } from "../constants.js";
 import { showError } from "../misc.js";
 import { hideDrawer, resetMenuContainer, selectNavItem } from "../nav.js";
+import { navigate } from "../router.js";
 import { session } from "../session.js";
 import { supabase } from "../supabase.js";
 
@@ -80,11 +81,14 @@ export function renderFriends(friends) {
         const profilePicImg = clone.querySelector(".img-container img");
         const contactName = clone.querySelector(".contact-name");
         const actions = clone.querySelector(".actions");
+        const card = clone.querySelector(".friend-card");
 
         profilePicImg.src = friend.profile_image ?? GENERIC_USER;
         contactName.appendChild(document.createTextNode(friend.username));
 
         addActionButtons(relationType, actions);
+        card.classList.add(relationType);
+        card.dataset.userid = friend.id;
 
         container.appendChild(clone);
     };
@@ -103,13 +107,31 @@ export function renderFriends(friends) {
 }
 
 /** @param {HTMLDivElement} friendsMenu */
-export function addFriendsEvents(friendsMenu) {}
+export function addFriendsEvents(friendsMenu) {
+    const msgBtnCallback = async (userId) => {
+        const { data: chatId, error } = await supabase.rpc("select_or_create_dm", { recipient_id: userId });
+
+        if (error) {
+            showError(".friend-card.button.message->onClick / select_or_create_dm(uuid)", error);
+            return;
+        }
+
+        navigate(`/chat/${chatId}`);
+    };
+
+    for (const friendCard of document.querySelectorAll(".friend-card")) {
+        if (friendCard.classList.contains("friend")) {
+            const messageBtn = friendCard.querySelector("button.message");
+            messageBtn.addEventListener("click", () => msgBtnCallback(friendCard.dataset.userid));
+        }
+    }
+}
 
 export function renderFriendsMenu() {
     resetMenuContainer();
     hideDrawer();
     selectNavItem("friends");
-    
+
     const menu = document.querySelector(".menu.friends-menu");
     menu.classList.remove("hidden");
 }
