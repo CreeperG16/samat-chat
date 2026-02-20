@@ -26,6 +26,9 @@ function showErrorParam() {
             case "failed_to_create_session":
                 setErrorMsg("An unknown error occured while creating your session - contact support");
                 return;
+            case "email_not_confirmed":
+                setErrorMsg("You haven't confirmed your email address! Check your inbox.");
+                return;
             default:
                 setErrorMsg(
                     `ERR: '${params.get("err")}' - An unknown error has occured. Check the console for details.`
