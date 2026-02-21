@@ -32,17 +32,22 @@ export const session = {
     relationships: () => relationshipCache,
 };
 
+function redirectToLogin() {
+    sessionStorage.setItem("redirect", location.pathname);
+    window.location.href = "/login";
+}
+
 export async function initSession() {
     const { data: sessionData, error: sessionErr } = await supabase.auth.getSession();
     if (sessionErr) {
         showError("session.js / initSession() / supabase.auth.getSession()", sessionErr);
-        window.location.href = "/login";
+        redirectToLogin();
         return false;
     }
 
     if (!sessionData.session) {
         console.log("Not logged in");
-        window.location.href = "/login";
+        redirectToLogin();
         return false;
     }
 
@@ -50,14 +55,14 @@ export async function initSession() {
     if (deviceSessionErr) {
         showError("session.js / initSession() / valid_device_session()", deviceSessionErr);
         await supabase.auth.signOut();
-        window.location.href = "/login";
+        redirectToLogin();
         return false;
     }
 
     if (!hasValidSession) {
         console.log("No valid device session");
         await supabase.auth.signOut();
-        window.location.href = "/login";
+        redirectToLogin();
         return false;
     }
 

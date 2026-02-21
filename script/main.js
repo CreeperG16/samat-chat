@@ -4,7 +4,7 @@ import { updateProfileImage } from "./nav.js";
 
 import { fetchDMs, renderDMCards, renderMessagesMenu } from "./pages/messages.js";
 import { fetchChannels, renderChannelCards, renderChannelsMenu } from "./pages/channels.js";
-import { addAddFriendViewEvents, addFriendsEvents, fetchFriends, renderAddFriendView, renderFriends, renderFriendsMenu } from "./pages/friends.js";
+import { addAddFriendViewEvents, fetchFriends, renderAddFriendView, renderFriends, renderFriendsMenu } from "./pages/friends.js";
 import { addProfileEvents, renderProfile, renderProfileMenu } from "./pages/profile.js";
 import { addChatViewEvents, renderChatView } from "./pages/chat-view.js";
 
@@ -18,14 +18,13 @@ async function main() {
 
     renderDMCards();
     renderChannelCards();
-
     renderFriends();
-    addAddFriendViewEvents();
 
     const profileMenu = renderProfile();
     addProfileEvents(profileMenu);
-
+    
     addChatViewEvents();
+    addAddFriendViewEvents();
 
     for (const { id } of channelCache.getAll()) subscribeToChat(id);
 
