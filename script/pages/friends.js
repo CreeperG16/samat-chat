@@ -1,59 +1,24 @@
 import { GENERIC_USER } from "../constants.js";
-import { showError } from "../misc.js";
+import { showConfirmDialog, showError } from "../misc.js";
 import { hideDrawer, resetMenuContainer, selectNavItem } from "../nav.js";
 import { navigate } from "../router.js";
 import { session } from "../session.js";
 import { supabase } from "../supabase.js";
 
 export async function fetchFriends() {
-    const { data: relationshipData, error } = await supabase.from("relationships").select(`
-        status,
-        user_1:profiles!relationships_user_1_fkey(*),
-        user_2:profiles!relationships_user_2_fkey(*)
-    `);
-
-    if (error) {
-        showError("fetchFriends() / select ... from relationships", error);
-        return;
-    }
-
-    const relationships = {
-        friends: [],
-        pendingOutgoing: [],
-        pendingIncoming: [],
-    };
-
-    try {
-        for (const { user_1, user_2, status } of relationshipData) {
-            const other = user_1.id === session.get().user.id ? user_2 : user_1;
-
-            if (status === "friends") relationships.friends.push(other);
-            if (status === "pending_incoming") {
-                // user_1 <--- user_2
-                if (user_1.id === other.id) relationships.pendingOutgoing.push(other); // I (user_2) sent a request to user_1
-                if (user_2.id === other.id) relationships.pendingIncoming.push(other); // user_2 sent a request to me (user_1)
-            }
-            if (status === "pending_outgoing") {
-                // user_1 ---> user_2
-                if (user_1.id === other.id) relationships.pendingIncoming.push(other); // user_1 sent a request to me (user_2)
-                if (user_2.id === other.id) relationships.pendingOutgoing.push(other); // I (user_1) sent a request to user_2
-            }
-        }
-    } catch (e) {
-        showError("fetchFriends() / for (... of relationshipData) ...", e);
-    }
-
-    return relationships;
+    await session.relationships().sync();
 }
 
 /** @returns {HTMLDivElement} */
-export function renderFriends(friends) {
+export function renderFriends() {
     /** @type {HTMLTemplateElement} */
     const template = document.querySelector("#friend-card");
     const friendsMenu = document.querySelector(".menu.friends-menu");
     const incomingRequests = friendsMenu.querySelector(".section.incoming");
     const outgoingRequests = friendsMenu.querySelector(".section.outgoing");
     const friendsList = friendsMenu.querySelector(".section.friends");
+
+    const setCount = (container, count) => (container.querySelector(".section-header").dataset.count = count);
 
     const addActionButtons = (relationType, container) => {
         const makeBtn = (inner, cl) => {
@@ -74,40 +39,45 @@ export function renderFriends(friends) {
         }
     };
 
-    const renderCard = (friend, container, relationType) => {
+    const renderCard = (friendId, container, relationType) => {
         const clone = document.importNode(template.content, true);
+
+        const friend = session.profiles().get(friendId);
 
         /** @type {HTMLImageElement} */
         const profilePicImg = clone.querySelector(".img-container img");
-        const contactName = clone.querySelector(".contact-name");
         const actions = clone.querySelector(".actions");
         const card = clone.querySelector(".friend-card");
 
         profilePicImg.src = friend.profile_image ?? GENERIC_USER;
-        contactName.appendChild(document.createTextNode(friend.username));
 
         addActionButtons(relationType, actions);
         card.classList.add(relationType);
         card.dataset.userid = friend.id;
+        card.dataset.username = friend.username;
 
         container.appendChild(clone);
     };
 
-    if (friends.pendingIncoming.length > 0)
-        incomingRequests.querySelector(".section-header").dataset.count = friends.pendingIncoming.length;
-    if (friends.pendingOutgoing.length > 0)
-        outgoingRequests.querySelector(".section-header").dataset.count = friends.pendingOutgoing.length;
-    if (friends.friends.length > 0) friendsList.querySelector(".section-header").dataset.count = friends.friends.length;
+    friendsMenu.querySelectorAll(".friend-card").forEach((c) => c.remove());
+    friendsMenu.querySelectorAll(".section").forEach((s) => setCount(s, 0));
 
-    for (const incoming of friends.pendingIncoming) renderCard(incoming, incomingRequests, "incoming");
-    for (const outgoing of friends.pendingOutgoing) renderCard(outgoing, outgoingRequests, "outgoing");
-    for (const friend of friends.friends) renderCard(friend, friendsList, "friend");
+    if (session.relationships().incoming().size > 0)
+        setCount(incomingRequests, session.relationships().incoming().size);
+    if (session.relationships().outgoing().size > 0)
+        setCount(outgoingRequests, session.relationships().outgoing().size);
+    if (session.relationships().friends().size > 0) setCount(friendsList, session.relationships().friends().size);
+
+    for (const incoming of session.relationships().incoming()) renderCard(incoming, incomingRequests, "incoming");
+    for (const outgoing of session.relationships().outgoing()) renderCard(outgoing, outgoingRequests, "outgoing");
+    for (const friend of session.relationships().friends()) renderCard(friend, friendsList, "friend");
+
+    addFriendsEvents();
 
     return friendsMenu;
 }
 
-/** @param {HTMLDivElement} friendsMenu */
-export function addFriendsEvents(friendsMenu) {
+export function addFriendsEvents() {
     const msgBtnCallback = async (userId) => {
         const { data: chatId, error } = await supabase.rpc("select_or_create_dm", { recipient_id: userId });
 
@@ -123,8 +93,44 @@ export function addFriendsEvents(friendsMenu) {
         if (friendCard.classList.contains("friend")) {
             const messageBtn = friendCard.querySelector("button.message");
             messageBtn.addEventListener("click", () => msgBtnCallback(friendCard.dataset.userid));
+
+            const removeBtn = friendCard.querySelector("button.remove");
+            removeBtn.addEventListener("click", () =>
+                showConfirmDialog(
+                    `Are you sure you want to remove <strong><em>${friendCard.dataset.username}</em></strong> from your friends?`,
+                    async () => {
+                        await session.relationships().removeFriend(friendCard.dataset.userid);
+                        renderFriends();
+                    }
+                )
+            );
+        }
+
+        if (friendCard.classList.contains("incoming")) {
+            const acceptBtn = friendCard.querySelector("button.accept");
+            acceptBtn.addEventListener("click", async () => {
+                await session.relationships().acceptRequest(friendCard.dataset.userid);
+                renderFriends();
+            });
+
+            const ignoreBtn = friendCard.querySelector("button.remove");
+            ignoreBtn.addEventListener("click", async () => {
+                await session.relationships().ignoreRequest(friendCard.dataset.userid);
+                renderFriends();
+            });
+        }
+
+        if (friendCard.classList.contains("outgoing")) {
+            const cancelBtn = friendCard.querySelector("button.remove");
+            cancelBtn.addEventListener("click", async () => {
+                await session.relationships().cancelRequest(friendCard.dataset.userid);
+                renderFriends();
+            });
         }
     }
+
+    const addFriendBtn = document.querySelector(".friends-menu .add-friend-btn");
+    addFriendBtn.addEventListener("click", () => navigate("/friends/add"));
 }
 
 export function renderFriendsMenu() {
@@ -134,4 +140,108 @@ export function renderFriendsMenu() {
 
     const menu = document.querySelector(".menu.friends-menu");
     menu.classList.remove("hidden");
+}
+
+// Add friend menu
+export function renderAddFriendView() {
+    const mainPanel = document.querySelector(".main");
+    const friendsContainer = mainPanel.querySelector(".container.friends-container");
+
+    friendsContainer.classList.remove("hidden");
+    mainPanel.classList.add("drawer-open");
+}
+
+function setSystemMessage(msg) {
+    const systemMsg = document.querySelector(".system-message");
+    systemMsg.innerHTML = "";
+    if (!msg) return;
+
+    systemMsg.appendChild(document.createTextNode(msg));
+}
+
+export function addAddFriendViewEvents() {
+    const mainPanel = document.querySelector(".main");
+    const friendsContainer = mainPanel.querySelector(".container.friends-container");
+
+    /** @type {HTMLFormElement} */
+    const friendForm = document.querySelector("#add-friend-form");
+
+    friendForm.username.addEventListener("focusout", async () => {
+        /** @type {HTMLInputElement} */
+        const u = friendForm.username;
+
+        const msg = (m) => {
+            u.setCustomValidity(m ?? "");
+            setSystemMessage(m);
+        }
+
+        msg();
+        if (!u.checkValidity()) return;
+        if (u.value === "") return;
+
+        u.classList.add("loading");
+        u.setCustomValidity("Loading...");
+
+        const { data, error } = await supabase.from("profiles").select().eq("username", u.value).limit(1).maybeSingle();
+
+        u.classList.remove("loading");
+
+        if (error) {
+            friendForm.userid.value = "";
+            msg("Unknown error occured in username lookup. Check console for details.");
+            showError("friendUsername.focusout / select ... from profiles", error);
+            return;
+        }
+
+        if (!data) {
+            friendForm.userid.value = "";
+            msg("No such user exists!");
+            return;
+        }
+
+        if (data.username === session.get().profile.username) {
+            friendForm.userid.value = "";
+            msg("Can't send a friend request to yourself!");
+            return;
+        }
+
+        if (session.relationships().friends().has(data.id)) {
+            friendForm.userid.value = "";
+            msg("You're already friends with this person!");
+            return;
+        }
+
+        // Add profile to cache
+        session.profiles().set(data.id, data);
+
+        msg();
+        friendForm.userid.value = data.id;
+        return;
+    });
+
+    friendForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        if (session.relationships().incoming().has(friendForm.userid.value)) {
+            // Accept friend request instead of sending a new one
+            await session.relationships().acceptRequest(friendForm.userid.value);
+            renderFriends();
+            navigate("/friends");
+            return;
+        }
+
+        if (session.relationships().outgoing().has(friendForm.userid.value)) {
+            // No need to send the request again
+            navigate("/friends");
+            return;
+        }
+
+        await session.relationships().addFriend(friendForm.userid.value);
+        renderFriends();
+
+        friendForm.userid.value = "";
+        friendForm.username.value = "";
+
+        navigate("/friends");
+    });
 }

@@ -22,8 +22,10 @@ export function showConfirmDialog(message, onConfirm, onCancel = () => {}) {
     const confirmDialog = document.querySelector("#confirm-dialog");
 
     const msgElement = confirmDialog.querySelector(".message");
-    msgElement.innerHTML = "";
-    msgElement.appendChild(document.createTextNode(message));
+    // msgElement.innerHTML = "";
+    // msgElement.appendChild(document.createTextNode(message));
+
+    msgElement.innerHTML = message;
 
     /** @param {PointerEvent} ev */
     const btnClickCallback = (ev) => {

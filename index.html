@@ -84,9 +84,6 @@
                         <div class="img-container">
                             <img src="images/user.svg" alt="User profile image">
                         </div>
-                        <div class="details">
-                            <div class="contact-name"></div>
-                        </div>
                         <div class="actions">
                             <!-- Fill according to type with JS -->
                         </div>
@@ -101,6 +98,7 @@
                 <div class="section friends"> 
                     <div class="section-header">Friends</div>
                 </div>
+                <div class="add-friend-btn floating-btn">+</div>
             </div>
 
             <!-- Profile menu -->
@@ -178,7 +176,15 @@
                 </div>
             </div>
             <div class="container friends-container hidden">
-                <!-- Friends -->
+                <!-- Add friend modal / form -->
+                <button class="back-btn" onclick="history.go(-1)"><</button>
+                <h1>Add a friend by username</h1>
+                <p class="system-message"></p>
+                <form id="add-friend-form">
+                    <input type="text" name="username" id="friend-username" pattern="^[a-zA-Z_\.0-9]{4,}" placeholder="Username..." >
+                    <input type="hidden" name="userid" class="hidden">
+                    <button type="submit">Send friend request</button>
+                </form>
             </div>
             <div class="container profile-container hidden">
                 <!-- Profile, settings, etc. -->

@@ -23,6 +23,27 @@ a {
     color: inherit;
 }
 
+.floating-btn {
+    position: absolute;
+    bottom: 1em;
+    right: 1em;
+    width: 2em;
+    height: 2em;
+    background-color: #485160;
+    border-radius: .5em;
+    box-shadow: .1em .1em .1em #0008;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2em;
+    user-select: none;
+    transition: transform 100ms ease;
+
+    &:active {
+        transform: translate(.1em, .1em);
+    }
+}
+
 #confirm-dialog {
     opacity: 0;
     pointer-events: none;
@@ -47,6 +68,7 @@ a {
     p {
         margin: 0 0 1em 0;
         padding: 0;
+        text-align: center;
     }
 
     .title {

@@ -26,6 +26,10 @@ export const session = {
     setSession: (s) => (currentSession.session = s),
     setUser: (u) => (currentSession.user = u),
     setProfile: (p) => (currentSession.profile = p),
+
+    channels: () => channelCache,
+    profiles: () => profileCacheMap, // TODO
+    relationships: () => relationshipCache,
 };
 
 export async function initSession() {
@@ -217,4 +221,111 @@ export function subscribeToChat(chatId) {
         .subscribe();
 
     realtimeChannels.set(chatId, rChannel);
+}
+
+const profileCacheMap = new Map();
+
+const relationshipCacheObj = {
+    friends: new Set(),
+    outgoing_requests: new Set(),
+    incoming_requests: new Set(),
+};
+
+const relationshipCache = {
+    friends: () => relationshipCacheObj.friends,
+    outgoing: () => relationshipCacheObj.outgoing_requests,
+    incoming: () => relationshipCacheObj.incoming_requests,
+
+    sync: () => syncRelationships(),
+    addFriend: (target) => sendFriendRequest(target),
+    removeFriend: (target) => removeFriend(target),
+    acceptRequest: (target) => acceptFriendRequest(target),
+    ignoreRequest: (target) => ignoreFriendRequest(target),
+    cancelRequest: (target) => cancelFriendRequest(target),
+}
+
+async function syncRelationships() {
+    const { data, error } = await supabase.from("relationships").select(`
+        status,
+        user_1:profiles!relationships_user_1_fkey(*),
+        user_2:profiles!relationships_user_2_fkey(*)
+    `);
+
+    if (error) {
+        showError("session.js / syncRelationships() / select * from relationships", error);
+        return;
+    }
+
+    try {
+        for (const { user_1, user_2, status } of data) {
+            const other = user_1.id === session.get().user.id ? user_2 : user_1;
+
+            profileCacheMap.set(other.id, other);
+
+            if (status === "friends") relationshipCacheObj.friends.add(other.id);
+            if (status === "pending_incoming") {
+                // user_1 <--- user_2
+                if (user_1.id === other.id) relationshipCacheObj.outgoing_requests.add(other.id); // I (user_2) sent a request to user_1
+                if (user_2.id === other.id) relationshipCacheObj.incoming_requests.add(other.id); // user_2 sent a request to me (user_1)
+            }
+            if (status === "pending_outgoing") {
+                // user_1 ---> user_2
+                if (user_1.id === other.id) relationshipCacheObj.incoming_requests.add(other.id); // user_1 sent a request to me (user_2)
+                if (user_2.id === other.id) relationshipCacheObj.outgoing_requests.add(other.id); // I (user_1) sent a request to user_2
+            }
+        }
+    } catch (e) {
+        showError("session.js / syncRelationships() / for (... of relationshipData) ...", e);
+    }
+}
+
+async function sendFriendRequest(target) {
+    const { error } = await supabase.rpc("request_friend", { target });
+    if (error) {
+        showError("session.js / sendFriendRequest(target) / public.request_friend()", error);
+        return;
+    }
+
+    relationshipCacheObj.outgoing_requests.add(target);
+}
+
+async function acceptFriendRequest(target) {
+    const { error } = await supabase.rpc("accept_friend_request", { target });
+    if (error) {
+        showError("session.js / acceptFriendRequest(target) / public.accept_friend_request()", error);
+        return;
+    }
+
+    relationshipCacheObj.incoming_requests.delete(target);
+    relationshipCacheObj.friends.add(target);
+}
+
+// incoming
+async function ignoreFriendRequest(target) {
+    const { error } = await supabase.rpc("remove_relationship", { target });
+    if (error) {
+        showError("session.js / ignoreFriendRequest(target) / public.remove_relationship()", error);
+        return;
+    }
+    relationshipCacheObj.incoming_requests.delete(target);
+}
+
+// outgoing
+async function cancelFriendRequest(target) {
+    const { error } = await supabase.rpc("remove_relationship", { target });
+    if (error) {
+        showError("session.js / cancelFriendRequest(target) / public.remove_relationship()", error);
+        return;
+    }
+    relationshipCacheObj.outgoing_requests.delete(target);
+}
+
+// friend
+async function removeFriend(target) {
+    const { error } = await supabase.rpc("remove_relationship", { target });
+    if (error) {
+        showError("session.js / removeFriend(target) / public.remove_relationship()", error);
+        return;
+    }
+    relationshipCacheObj.friends.delete(target);
 }

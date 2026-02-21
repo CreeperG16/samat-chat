@@ -1,7 +1,9 @@
 @media (max-width: 768px) {
     .friends-menu {
+        position: relative;
         display: flex;
         flex-direction: column;
+        height: 100%;
 
         .section-header {
             text-transform: uppercase;
@@ -45,17 +47,22 @@
                 overflow: hidden;
                 border-radius: 50%;
                 background-color: #252c36;
+
+                order: 0;
             }
             img {
                 width: 3em;
                 height: 3em;
             }
 
-            .details {
+            &::before {
                 display: flex;
-                flex-direction: column;
-                justify-content: center;
+                align-items: center;
+                justify-content: left;
                 width: 100%;
+                content: attr(data-username);
+
+                order: 1;
             }
 
             &:hover {
@@ -71,6 +78,8 @@
                 flex-direction: row;
                 align-items: center;
                 gap: .5em;
+
+                order: 2;
 
                 button {
                     width: 2.5em;
@@ -100,6 +109,127 @@
                 button:active {
                     transform: translate(.1em, .1em);
                 }
+            }
+        }
+    }
+
+    .friends-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        width: 100%;
+        height: 100%;
+
+        /* TODO: global this? */
+        input {
+            background-color: #2f3948;
+            border: none;
+            height: 2em;
+            border-radius: 0.5em;
+            outline: 0 solid transparent;
+            color: #fff;
+            padding: 0.5em 1em;
+            font-family: "JetBrains Mono", monospace;
+            transition: background-color 100ms ease, border-color 100ms ease;
+            text-transform: lowercase;
+            border: 3px solid #0000;
+
+            &:disabled {
+                background-color: #4e5c74;
+                color: #ddd;
+                pointer-events: none;
+                cursor: not-allowed;
+            }
+
+            &:invalid {
+                background-color: #ba2121;
+            }
+
+            &:valid:not(:placeholder-shown, :focus-within) {
+                border: 3px solid #1db424;
+            }
+
+            &.loading {
+                background-color: #4e5c74 !important;
+            }
+        }
+
+        /* This (above, below) is just copied from login */
+        button {
+            border: none;
+            padding: .5em 2em;
+            background-color: #323242;
+            color: #fff;
+            border-radius: .5em;
+            font-size: 1em;
+            font-family: "JetBrains Mono", monospace;
+
+            transition: background-color 100ms, transform 100ms;
+
+            &:hover {
+                background-color: #434354;
+            }
+
+            &:active {
+                transform: translate(2px, 2px);
+            }
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 1em;
+        }
+
+        input:is(.loading, :invalid, :placeholder-shown, :focus-within):not(.hidden) ~ button[type=submit] {
+            background-color: #4e5c74;
+            color: #ddd;
+            pointer-events: none;
+            cursor: not-allowed;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: .3em;
+            left: .3em;
+            display: flex;
+            background-color: #21212c;
+            color: #fff;
+            font-size: 1.4em;
+            padding: 0;
+            width: 1.4em;
+            height: 1.4em;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            margin: 0;
+            transform: translate(0, 0);
+
+            transition: background-color 100ms ease, transform 100ms ease;
+
+            &:hover {
+                background-color: #4e5c74;
+            }
+
+            &:active {
+                transform: translate(.1em, .1em);
+            }
+        }
+
+        .system-message {
+            display: inline;
+            color: #ff2a2a;
+            /* margin: 1em 0 0 0; */
+            margin: 0 0 1em 0;
+            font-weight: 400;
+
+            &:empty {
+                display: none;
             }
         }
     }

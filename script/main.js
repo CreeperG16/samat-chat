@@ -4,7 +4,7 @@ import { updateProfileImage } from "./nav.js";
 
 import { fetchDMs, renderDMCards, renderMessagesMenu } from "./pages/messages.js";
 import { fetchChannels, renderChannelCards, renderChannelsMenu } from "./pages/channels.js";
-import { addFriendsEvents, fetchFriends, renderFriends, renderFriendsMenu } from "./pages/friends.js";
+import { addAddFriendViewEvents, addFriendsEvents, fetchFriends, renderAddFriendView, renderFriends, renderFriendsMenu } from "./pages/friends.js";
 import { addProfileEvents, renderProfile, renderProfileMenu } from "./pages/profile.js";
 import { addChatViewEvents, renderChatView } from "./pages/chat-view.js";
 
@@ -14,13 +14,13 @@ async function main() {
 
     updateProfileImage();
 
-    const [friends] = await Promise.all([fetchFriends(), fetchDMs(), fetchChannels()]);
+    await Promise.all([fetchFriends(), fetchDMs(), fetchChannels()]);
 
     renderDMCards();
     renderChannelCards();
 
-    const friendsMenu = renderFriends(friends);
-    addFriendsEvents(friendsMenu);
+    renderFriends();
+    addAddFriendViewEvents();
 
     const profileMenu = renderProfile();
     addProfileEvents(profileMenu);
@@ -36,6 +36,7 @@ async function main() {
         "/profile": renderProfileMenu,
 
         "/chat/:chat_id": renderChatView,
+        "/friends/add": renderAddFriendView,
     });
 
     const redirect = sessionStorage.getItem("redirect");

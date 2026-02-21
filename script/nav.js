@@ -22,6 +22,8 @@ export function resetMenuContainer() {
 
 export function hideDrawer() {
     document.querySelector(".main .message-container .messages").innerHTML = "";
+
+    document.querySelectorAll(".main .container").forEach((c) => c.classList.add("hidden"));
     document.querySelector(".main").classList.remove("drawer-open");
 }
 
