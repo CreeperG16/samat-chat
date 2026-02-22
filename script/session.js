@@ -23,10 +23,7 @@ const currentSession = {
 
 export const session = {
     get: () => currentSession,
-    setSession: (s) => (currentSession.session = s),
-    setUser: (u) => (currentSession.user = u),
-    setProfile: (p) => (currentSession.profile = p),
-
+    
     channels: () => channelCache,
     profiles: () => profileCacheMap, // TODO
     relationships: () => relationshipCache,
@@ -88,9 +85,9 @@ export async function initSession() {
     supabase.realtime.setAuth(sessionData.session.access_token);
     supabase.functions.setAuth(sessionData.session.access_token);
 
-    session.setSession(sessionData.session);
-    session.setUser(userData.user);
-    session.setProfile(profile);
+    currentSession.session = sessionData.session;
+    currentSession.user = userData.user;
+    currentSession.profile = profile;
 
     return true;
 }
