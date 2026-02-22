@@ -23,26 +23,28 @@ const currentSession = {
 
 export const session = {
     get: () => currentSession,
-    setSession: (s) => (currentSession.session = s),
-    setUser: (u) => (currentSession.user = u),
-    setProfile: (p) => (currentSession.profile = p),
-
+    
     channels: () => channelCache,
     profiles: () => profileCacheMap, // TODO
     relationships: () => relationshipCache,
 };
 
+function redirectToLogin() {
+    sessionStorage.setItem("redirect", location.pathname);
+    window.location.href = "/login";
+}
+
 export async function initSession() {
     const { data: sessionData, error: sessionErr } = await supabase.auth.getSession();
     if (sessionErr) {
         showError("session.js / initSession() / supabase.auth.getSession()", sessionErr);
-        window.location.href = "/login";
+        redirectToLogin();
         return false;
     }
 
     if (!sessionData.session) {
         console.log("Not logged in");
-        window.location.href = "/login";
+        redirectToLogin();
         return false;
     }
 
@@ -50,14 +52,14 @@ export async function initSession() {
     if (deviceSessionErr) {
         showError("session.js / initSession() / valid_device_session()", deviceSessionErr);
         await supabase.auth.signOut();
-        window.location.href = "/login";
+        redirectToLogin();
         return false;
     }
 
     if (!hasValidSession) {
         console.log("No valid device session");
         await supabase.auth.signOut();
-        window.location.href = "/login";
+        redirectToLogin();
         return false;
     }
 
@@ -83,9 +85,9 @@ export async function initSession() {
     supabase.realtime.setAuth(sessionData.session.access_token);
     supabase.functions.setAuth(sessionData.session.access_token);
 
-    session.setSession(sessionData.session);
-    session.setUser(userData.user);
-    session.setProfile(profile);
+    currentSession.session = sessionData.session;
+    currentSession.user = userData.user;
+    currentSession.profile = profile;
 
     return true;
 }
