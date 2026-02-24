@@ -210,9 +210,12 @@
         <p class="where"></p>
         <pre class="message"></pre>
         <div class="progress"></div>
-        <button onclick="this.parentElement.classList.remove('has-err')">X</button>
+        <button class="close-btn">X</button>
     </div>
 
     <script type="module" src="/script/main.js" async></script>
+    <script>
+        if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js", { scope: "/" });
+    </script>
 </body>
 </html>

@@ -1,3 +1,4 @@
+let errTimeout = null;
 export function showError(where, err) {
     console.error(`Error in ${where}:`, err);
 
@@ -9,7 +10,17 @@ export function showError(where, err) {
     errBanner.querySelector(".message").innerHTML = err instanceof Error ? fmtErr(err) : JSON.stringify(err, null, 2);
 
     errBanner.classList.add("has-err");
-    setTimeout(() => errBanner.classList.remove("has-err"), 10_000);
+    if (errTimeout) clearTimeout(errTimeout);
+    errTimeout = setTimeout(() => {
+        errBanner.classList.remove("has-err");
+        clearTimeout(errTimeout);
+    }, 10_000);
+
+    //onclick="this.parentElement.classList.remove('has-err')"
+    errBanner.querySelector(".close-btn").addEventListener("click", () => {
+        errBanner.classList.remove("has-err");
+        clearTimeout(errTimeout);
+    });
 }
 
 /**
