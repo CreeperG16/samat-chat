@@ -7,6 +7,8 @@
     <link rel="icon" type="image/png" href="/images/favicon.png">
     <base href="/">
     
+    <link rel="manifest" href="manifest.json">
+
     <!-- Styles -->
     <link rel="stylesheet" href="/style/global.css">
     <link rel="stylesheet" href="/style/style.css">
@@ -208,9 +210,20 @@
         <p class="where"></p>
         <pre class="message"></pre>
         <div class="progress"></div>
-        <button onclick="this.parentElement.classList.remove('has-err')">X</button>
+        <button class="close-btn">X</button>
+    </div>
+
+    <div id="push-notifications" class="hidden">
+        <img src="/images/chat.svg" alt="Notification icon">
+        <div class="notif-text">
+            <p>Enable push notifications?</p>
+            <p>Notifications are off.</p>
+        </div>
+        <button id="enable-notifications">Enable</button>
+        <button class="dismiss">X</button>
     </div>
 
     <script type="module" src="/script/main.js" async></script>
+    <!-- <script>if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js", { scope: "/" });</script> -->
 </body>
 </html>

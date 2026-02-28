@@ -1,0 +1,13 @@
+{
+    "name": "samat chat",
+    "icons": [
+        {
+            "src": "images/favicon.png",
+            "type": "image/png",
+            "sizes": "512x512"
+        }
+    ],
+    "display": "standalone",
+    "orientation": "portrait",
+    "start_url": "/"
+}
