@@ -12,13 +12,29 @@ import { supabase } from "./supabase.js";
  *      username: string;
  *      profile_image: string | null;
  *      display_name: string;
- *  }
+ *  };
+ *  deviceSession: {
+ *      id: string;
+ *      user_id: string;
+ *      supabase_session_id: string;
+ *      session_token: string;
+ *      device_name: string;
+ *      device_type: string;
+ *      user_agent: string;
+ *      ip_address: string;
+ *      push_subscription: {
+ *          endpoint: string;
+ *          expirationTime: string | null;
+ *          keys: { p256dh: string; auth: string; };
+ *      } | null;
+ *  };
  * }}
  */
 const currentSession = {
     session: null,
     user: null,
     profile: null,
+    deviceSession: null,
 };
 
 export const session = {
@@ -63,6 +79,14 @@ export async function initSession() {
         return false;
     }
 
+    const { data: deviceSession, error: deviceSessionFetchErr } = await supabase.from("device_sessions").select().limit(1).single();
+    if (deviceSessionFetchErr) {
+        showError("session.js / initSession() / select from device_sessions", deviceSessionFetchErr);
+        await supabase.auth.signOut();
+        redirectToLogin();
+        return false;
+    }
+
     const { data: userData, error: userErr } = await supabase.auth.getUser();
     if (userErr) {
         showError("session.js / initSession() / supabase.auth.getUser()", userErr);
@@ -88,6 +112,7 @@ export async function initSession() {
     currentSession.session = sessionData.session;
     currentSession.user = userData.user;
     currentSession.profile = profile;
+    currentSession.deviceSession = deviceSession;
 
     return true;
 }
